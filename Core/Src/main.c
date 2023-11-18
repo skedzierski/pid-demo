@@ -27,7 +27,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
+#include "usbd_cdc_if.h"
+#include "vl6180.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +57,7 @@
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+int run_tests();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,8 +96,16 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
+  VL1680_t dev;
+  VL1680_Init(&dev);
+  int distance = 0;
+  while(1)
+  {
+        distance = VL1680_PollMeasurment(&dev);
+    printf("%d\n\r", distance);
+  }
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -165,7 +175,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int _write(int file, char* data, int len)
+{
+  if(CDC_Transmit_FS(data, len) == 0)
+    return len;
+  else
+    return -1;
+}
 /* USER CODE END 4 */
 
 /**
