@@ -61,6 +61,11 @@ void Error_Handler(void);
 #define BLUE_LED_GPIO_Port GPIOC
 #define GREEN_LED_Pin GPIO_PIN_14
 #define GREEN_LED_GPIO_Port GPIOC
+#define VL6180_GPIO0_Pin GPIO_PIN_4
+#define VL6180_GPIO0_GPIO_Port GPIOB
+#define VL6180_GPIO1_Pin GPIO_PIN_5
+#define VL6180_GPIO1_GPIO_Port GPIOB
+#define VL6180_GPIO1_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 
