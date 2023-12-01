@@ -29,7 +29,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "usbd_cdc_if.h"
-#include "vl6180.h"
+#include "vl6180_api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,7 +50,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+VL6180Dev_t dev = 0x52;
+extern volatile uint8_t new_sample_ready;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,15 +97,27 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  VL1680_t dev;
-  VL1680_Init(&dev);
-  int distance = 0;
+  MX_USB_DEVICE_Init();
+  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET);
+  VL6180_WaitDeviceBooted(dev);
+  VL6180_InitData(dev);
+  VL6180_Prepare(dev);
+  VL6180_RangeSetInterMeasPeriod(dev, 1000);
+  VL6180_SetupGPIO1(dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
+  VL6180_RangeConfigInterrupt(dev, CONFIG_GPIO_INTERRUPT_NEW_SAMPLE_READY);
+  VL6180_RangeStartContinuousMode(dev);
+  static VL6180_RangeData_t data = {0};
   while(1)
   {
-        distance = VL1680_PollMeasurment(&dev);
-    printf("%d\n\r", distance);
+    if(new_sample_ready)
+    {
+        VL6180_RangeGetMeasurement(dev, &data);
+        printf("%d\n\r", data.range_mm);
+        printf("%s\n\r", VL6180_RangeGetStatusErrString(data.errorStatus));
+        new_sample_ready = 0;
+        VL6180_ClearAllInterrupt(dev);
+    }
   }
   /* USER CODE END 2 */
 
