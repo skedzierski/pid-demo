@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "vl6180_api.h"
+#include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +49,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t test = 123;
+uint8_t whoami = 0;
+int16_t gyro_x_raw = 0;
+float gyro_scale = 0;
+float gyro_x_scaled = 0;
+
+int16_t accel_x_raw = 0;
+float accel_scale = 0.0610352;
+float accel_x_scaled = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,20 +104,35 @@ int main(void)
   MX_TIM3_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+  test = MPU6050_Init(&hi2c1, 0);
+  test = MPU6050_SetDLPF(MPU6050_DLPF_BW_20);
+  test = MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
+  test = MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+  test = MPU6050_GetDeviceID(&whoami);
+  test = MPU6050_GetGyroScale(&gyro_scale);
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
+  //osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+   
+    test = MPU6050_GetRotationXRAW(&gyro_x_raw);
+    gyro_x_scaled = (float)gyro_x_raw * gyro_scale;
+    //HAL_Delay(50);
+    test = MPU6050_GetAccelerationXRAW(&accel_x_raw);
+    accel_x_scaled = (float)accel_x_raw * accel_scale;
+    //HAL_Delay(50);
+    //HAL_Delay(5000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
