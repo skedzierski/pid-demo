@@ -28,5 +28,13 @@ MPU6050_StatusTypeDef MPU6050_SetClockSource(uint8_t clk_source);
 MPU6050_StatusTypeDef MPU6050_SetDLPF(uint8_t filter_value);
 MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(uint8_t gyro_range);
 MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(uint8_t accel_range);
+MPU6050_StatusTypeDef MPU6050_GetGyroScale(float *gyro_scale);
+MPU6050_StatusTypeDef MPU6050_GetRotationXRAW(int16_t *gyro_x);
+MPU6050_StatusTypeDef MPU6050_GetRotationYRAW(int16_t *gyro_y);
+MPU6050_StatusTypeDef MPU6050_GetRotationZRAW(int16_t *gyro_z);
+MPU6050_StatusTypeDef MPU6050_GetAccelScale(float *accel_scale);
+MPU6050_StatusTypeDef MPU6050_GetAccelerationXRAW(int16_t *accel_x);
+MPU6050_StatusTypeDef MPU6050_GetAccelerationYRAW(int16_t *accel_y);
+MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(int16_t *accel_z);
 
 #endif

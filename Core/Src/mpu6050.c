@@ -26,8 +26,8 @@ MPU6050_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c, uint8_t address_sele
     else if(address_select == 1) mpu6050_handle.i2c_addres = MPU6050_ADDRESS_HIGH;
     else return MPU6050_ARG_ERR;
 	ret = MPU6050_DeviceReset();
-    //HAL_Delay(1000);                                                //TODO Domyśl się 
     if(ret) return ret;
+    //HAL_Delay(10);
     MPU6050_SetSleepMode(0);
     MPU6050_SetClockSource(MPU6050_CLOCK_INTERNAL);
     //MPU6050_SetDlpf(MPU6050_DLPF_BW_20);
@@ -70,7 +70,7 @@ MPU6050_StatusTypeDef MPU6050_SetSleepMode(uint8_t mode)
 {
 	uint8_t data;
 	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
-	//data &= ~(1<<MPU6050_PWR1_SLEEP_BIT);
+	data &= ~(1<<MPU6050_PWR1_SLEEP_BIT);
 	data |= ((mode & 0b00000001) << MPU6050_PWR1_SLEEP_BIT);
 	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
     return MPU6050_OK;
@@ -174,10 +174,102 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(uint8_t accel_range)
     return MPU6050_OK;
 }
 
+/**
+  * @brief  Get MPU6050 gyroscope X-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
 MPU6050_StatusTypeDef MPU6050_GetRotationXRAW(int16_t *gyro_x)
 {
 	uint8_t data[2];
-	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_XOUT_H, 1, data, 2, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+    if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_XOUT_H, 1, data, 2, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
 	*gyro_x = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 gyroscope Y-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetRotationYRAW(int16_t *gyro_y)
+{
+	uint8_t data[2];
+    if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_YOUT_H, 1, data, 2, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*gyro_y = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 gyroscope Z-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetRotationZRAW(int16_t *gyro_z)
+{
+	uint8_t data[2];
+    if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_ZOUT_H, 1, data, 2, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*gyro_z = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 gyroscope scaling factor
+  * @param gyro_scale Pointer to float variable in which gyroscope scaling factor will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetGyroScale(float *gyro_scale)
+{
+	*gyro_scale = mpu6050_handle.gyro_scale;
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 accelerometer X-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetAccelerationXRAW(int16_t *accel_x)
+{
+	uint8_t data[2];
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_ACCEL_XOUT_H, 1, data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*accel_x = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 accelerometer Y-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetAccelerationYRAW(int16_t *accel_y)
+{
+	uint8_t data[2];
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_ACCEL_YOUT_H, 1, data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*accel_y = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 accelerometer Z-axis raw result directly
+  * @param gyro_x Pointer to int16_t variable in which result will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(int16_t *accel_z)
+{
+	uint8_t data[2];
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_ACCEL_ZOUT_H, 1, data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*accel_z = (((int16_t)data[0]) << 8) | data[1];
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Get MPU6050 accelerometer scaling factor
+  * @param gyro_scale Pointer to float variable in which accelerometer scaling factor will be saved
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_GetAccelScale(float *accel_scale)
+{
+	*accel_scale = mpu6050_handle.accel_scale;
     return MPU6050_OK;
 }
