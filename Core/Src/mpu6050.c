@@ -27,8 +27,8 @@ MPU6050_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c, uint8_t address_sele
     else return MPU6050_ARG_ERR;
 	ret = MPU6050_DeviceReset();
     if(ret) return ret;
-    //MPU6050_SetSleepEnabled(0);
-    //MPU6050_SetClockSource(MPU6050_CLOCK_INTERNAL);
+    MPU6050_SetSleepMode(0);
+    MPU6050_SetClockSource(MPU6050_CLOCK_INTERNAL);
     //MPU6050_SetDlpf(MPU6050_DLPF_BW_20);
     //MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     //MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -47,6 +47,10 @@ MPU6050_StatusTypeDef MPU6050_GetDeviceID(uint8_t *data)
     return MPU6050_OK;
 }
 
+/**
+  * @brief  Reset MPU6050 registers to deafult values
+  * @retval MPU6050 status
+  */
 MPU6050_StatusTypeDef MPU6050_DeviceReset(void){
     uint8_t data;
 	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
@@ -56,4 +60,105 @@ MPU6050_StatusTypeDef MPU6050_DeviceReset(void){
     return MPU6050_OK;
 }
 
+/**
+  * @brief  Toggle MPU6050 sleep mode
+  * @param mode Select sleep mode state: 1 - enabled 0 - disabled
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetSleepMode(uint8_t mode)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	//data &= ~(1<<MPU6050_PWR1_SLEEP_BIT);
+	data |= ((mode & 0b00000001) << MPU6050_PWR1_SLEEP_BIT);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+    return MPU6050_OK;
+}
 
+/**
+  * @brief  Select MPU6050 clock source
+  * @param clk_source Use MPU6050_CLOCK_INTERNAL for internal 20MHz oscillator
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetClockSource(uint8_t clk_source)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	data &= 0b11111000;
+	data |= (clk_source & 0b00000111);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+    return MPU6050_OK;
+}
+
+/**
+  * @brief  Configure MPU6050 Data Low Pass Filter. This filter only applies for gyroscope and temperature sensor.
+  * @param clk_source Use MPU6050_DLPF_BW_* defined values to select filter bandiwdth.
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetDLPF(uint8_t filter_value)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	data &= 0b11111000;
+	data |= (filter_value & 0b00000111);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+    return MPU6050_OK;
+}
+
+MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(uint8_t gyro_range)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	data &= 0b11100111;
+	data |= ((gyro_range & 0b00000011) << MPU6050_GCONFIG_FS_SEL_BIT);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+
+	switch(gyro_range)
+	{
+		case MPU6050_GYRO_FS_250:
+			mpu6050_handle.gyro_scale = 0.0076294;
+			break;
+		case MPU6050_GYRO_FS_500:
+			mpu6050_handle.gyro_scale = 0.0152588;
+			break;
+		case MPU6050_GYRO_FS_1000:
+			mpu6050_handle.gyro_scale = 0.0305176;
+			break;
+		case MPU6050_GYRO_FS_2000:
+			mpu6050_handle.gyro_scale = 0.0610352;
+			break;
+		default:
+            return MPU6050_ARG_ERR;
+			break;
+	}
+    return MPU6050_OK;
+}
+
+MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(uint8_t accel_range)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	data &= 0xE7;
+	data |= ((accel_range & 0x7) << 3);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+
+	switch(accel_range)
+	{
+		case MPU6050_ACCEL_FS_2:
+			mpu6050_handle.accel_scale = 0.0610352;
+			break;
+		case MPU6050_ACCEL_FS_4:
+			mpu6050_handle.accel_scale = 0.1220703;
+			break;
+		case MPU6050_ACCEL_FS_8:
+			mpu6050_handle.accel_scale = 0.2441406;
+			break;
+		case MPU6050_ACCEL_FS_16:
+			mpu6050_handle.accel_scale = 0.4882813;
+			break;
+		default:
+            return MPU6050_ARG_ERR;
+			break;
+	}
+    return MPU6050_OK;
+}

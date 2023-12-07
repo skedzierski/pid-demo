@@ -149,19 +149,20 @@
 #define MPU6050_EXT_SYNC_ACCEL_YOUT_L   0x6
 #define MPU6050_EXT_SYNC_ACCEL_ZOUT_L   0x7
 
-#define MPU6050_DLPF_BW_256         0x00
-#define MPU6050_DLPF_BW_188         0x01
-#define MPU6050_DLPF_BW_98          0x02
-#define MPU6050_DLPF_BW_42          0x03
+#define MPU6050_DLPF_BW_250         0x00
+#define MPU6050_DLPF_BW_184         0x01
+#define MPU6050_DLPF_BW_92          0x02
+#define MPU6050_DLPF_BW_41          0x03
 #define MPU6050_DLPF_BW_20          0x04
 #define MPU6050_DLPF_BW_10          0x05
 #define MPU6050_DLPF_BW_5           0x06
+#define MPU6050_DLPF_BW_3600        0x07
 
 //
 //	Register 27 � Gyroscope Configuration
 //	GYRO_CONFIG
 //
-#define MPU6050_GCONFIG_FS_SEL_BIT      4
+#define MPU6050_GCONFIG_FS_SEL_BIT      3
 #define MPU6050_GCONFIG_FS_SEL_LENGTH   2
 
 #define MPU6050_GYRO_FS_250         0x00
