@@ -104,20 +104,14 @@ int main(void)
   MX_TIM3_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  test = MPU6050_Init(&hi2c1, 0);
-  test = MPU6050_SetDLPF(MPU6050_DLPF_BW_20);
-  test = MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
-  test = MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-  test = MPU6050_GetDeviceID(&whoami);
-  test = MPU6050_GetGyroScale(&gyro_scale);
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  //osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
-  //MX_FREERTOS_Init();
+  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */

@@ -47,7 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-  TaskHandle_t demo_task_handle;
+  TaskHandle_t tof_task_handle, taskh;
   QueueHandle_t message_queue;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -90,7 +90,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_QUEUES */
 
-  message_queue = xQueueCreate(10, sizeof(uint32_t));
+  message_queue = xQueueCreate(20, sizeof(measurment));
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -98,8 +98,9 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  xTaskCreate(demo, "vl6180x task", 1000, &message_queue, tskIDLE_PRIORITY + 2, &demo_task_handle);
-  xTaskCreate(simple_logger, "Logger", 1000, &message_queue, tskIDLE_PRIORITY + 1, NULL);
+  xTaskCreate(demo_tof, "vl6180x task", 1000, &message_queue, tskIDLE_PRIORITY + 2, &tof_task_handle);
+  xTaskCreate(demo_acc, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 2, NULL);
+  xTaskCreate(simple_logger, "Logger", 1000, &message_queue, tskIDLE_PRIORITY + 1, &taskh);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
