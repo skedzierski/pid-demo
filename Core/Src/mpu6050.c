@@ -26,6 +26,7 @@ MPU6050_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c, uint8_t address_sele
     else if(address_select == 1) mpu6050_handle.i2c_addres = MPU6050_ADDRESS_HIGH;
     else return MPU6050_ARG_ERR;
 	ret = MPU6050_DeviceReset();
+    //HAL_Delay(1000);                                                //TODO Domyśl się 
     if(ret) return ret;
     MPU6050_SetSleepMode(0);
     MPU6050_SetClockSource(MPU6050_CLOCK_INTERNAL);
@@ -98,20 +99,25 @@ MPU6050_StatusTypeDef MPU6050_SetClockSource(uint8_t clk_source)
 MPU6050_StatusTypeDef MPU6050_SetDLPF(uint8_t filter_value)
 {
 	uint8_t data;
-	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
 	data &= 0b11111000;
 	data |= (filter_value & 0b00000111);
-	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
     return MPU6050_OK;
 }
 
+/**
+  * @brief  Set MPU6050 gyroscope full scale range
+  * @param gyro_range Use MPU6050_GYRO_FS_* defined values to select gyro full scale.
+  * @retval MPU6050 status
+  */
 MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(uint8_t gyro_range)
 {
 	uint8_t data;
-	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
 	data &= 0b11100111;
 	data |= ((gyro_range & 0b00000011) << MPU6050_GCONFIG_FS_SEL_BIT);
-	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
 
 	switch(gyro_range)
 	{
@@ -134,13 +140,18 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(uint8_t gyro_range)
     return MPU6050_OK;
 }
 
+/**
+  * @brief  Set MPU6050 accelerometer full scale range
+  * @param accel_range Use MPU6050_ACCEL_FS_* defined values to select gyro full scale.
+  * @retval MPU6050 status
+  */
 MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(uint8_t accel_range)
 {
 	uint8_t data;
-	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
-	data &= 0xE7;
-	data |= ((accel_range & 0x7) << 3);
-	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_ACCEL_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	data &= 0b11100111;
+	data |= ((accel_range & 0b00000011) << MPU6050_ACONFIG_AFS_SEL_BIT);
+	if(HAL_I2C_Mem_Write(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_ACCEL_CONFIG, 1, &data, 1, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
 
 	switch(accel_range)
 	{
@@ -160,5 +171,13 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(uint8_t accel_range)
             return MPU6050_ARG_ERR;
 			break;
 	}
+    return MPU6050_OK;
+}
+
+MPU6050_StatusTypeDef MPU6050_GetRotationXRAW(int16_t *gyro_x)
+{
+	uint8_t data[2];
+	if(HAL_I2C_Mem_Read(mpu6050_handle.i2c_handle, mpu6050_handle.i2c_addres, MPU6050_RA_GYRO_XOUT_H, 1, data, 2, I2C_TIMEOUT)) return MPU6050_I2C_ERR;
+	*gyro_x = (((int16_t)data[0]) << 8) | data[1];
     return MPU6050_OK;
 }

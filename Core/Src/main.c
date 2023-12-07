@@ -113,6 +113,9 @@ int main(void)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     test = MPU6050_Init(&hi2c1, 0);
+    test = MPU6050_SetDLPF(MPU6050_DLPF_BW_20);
+    test = MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    test = MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     test = MPU6050_GetDeviceID(&whoami);
     //HAL_Delay(5000);
     /* USER CODE END WHILE */
