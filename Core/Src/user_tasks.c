@@ -18,6 +18,7 @@ void demo_tof(void* args)
   VL6180_WaitDeviceBooted(dev);
   VL6180_InitData(dev);
   VL6180_Prepare(dev);
+  VL6180_SetOffsetCalibrationData(dev, VL6180_GetOffsetCalibrationData(dev));
   VL6180_RangeSetInterMeasPeriod(dev, 1000);
   VL6180_SetupGPIO1(dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
   VL6180_RangeConfigInterrupt(dev, CONFIG_GPIO_INTERRUPT_NEW_SAMPLE_READY);
@@ -31,9 +32,9 @@ void demo_tof(void* args)
     xTaskNotifyWait(0xffffffff, 0, NULL, portMAX_DELAY);
     taskENTER_CRITICAL();
     VL6180_RangeGetMeasurement(dev, &data);
+    VL6180_ClearAllInterrupt(dev);
     m.distance = data.range_mm;
     xQueueSend(*message_queue, &m, portMAX_DELAY);
-    VL6180_ClearAllInterrupt(dev);
     taskEXIT_CRITICAL();
     vTaskResume(taskh);
   }
@@ -49,6 +50,11 @@ void demo_acc(void* args)
   status += MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
   status += MPU6050_GetGyroScale(&gyro_scale);
   status += MPU6050_GetAccelScale(&acc_scale);
+
+  if(status != 0)
+  {
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+  }
   
   int16_t acc_x, gyro_x;
   QueueHandle_t* message_queue = args;
@@ -59,8 +65,8 @@ void demo_acc(void* args)
     taskENTER_CRITICAL();
     MPU6050_GetAccelerationXRAW(&acc_x);
     MPU6050_GetRotationXRAW(&gyro_x);
-    m.acc_x = acc_x * acc_scale;
-    m.gyro_x = gyro_x * gyro_scale;
+    m.vec2.acc_x = acc_x * acc_scale;
+    m.vec2.gyro_x = gyro_x * gyro_scale;
     taskEXIT_CRITICAL();
     xQueueSend(*message_queue, &m, portMAX_DELAY);
     vTaskResume(taskh);
@@ -74,13 +80,12 @@ void simple_logger(void* args)
   QueueHandle_t* message_queue = args;
   while(1)
   {
-    // if(uxQueueMessagesWaiting(*message_queue) == 0)
-    // {
-    //   vTaskSuspend(NULL);
-    //   volatile eTaskState state = eTaskGetState(taskh);
-    //   taskYIELD();
-    // }
-    xQueueReceive(*message_queue, &message_buf, 3/portTICK_PERIOD_MS);
+    if(uxQueueMessagesWaiting(*message_queue) == 0)
+    {
+      vTaskSuspend(NULL);
+      taskYIELD();
+    }
+    xQueueReceive(*message_queue, &message_buf, portMAX_DELAY);
     if(message_buf.device == VL6180)
     {
       taskENTER_CRITICAL();
@@ -90,7 +95,8 @@ void simple_logger(void* args)
     else if(message_buf.device == MPU6050)
     {
       taskENTER_CRITICAL();
-      printf("acceleration x: %f mG rotation: %f [deg/s]\r\n", message_buf.acc_x, message_buf.gyro_x);
+      printf("acceleration x: %f mG rotation: %f [deg/s]\r\n", message_buf.vec2.acc_x, message_buf.vec2.gyro_x);
+      taskEXIT_CRITICAL();
     }
   }
 }

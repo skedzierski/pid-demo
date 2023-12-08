@@ -27,7 +27,7 @@ MPU6050_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c, uint8_t address_sele
     else return MPU6050_ARG_ERR;
 	ret = MPU6050_DeviceReset();
     if(ret) return ret;
-    //HAL_Delay(10);
+    HAL_Delay(50);
     MPU6050_SetSleepMode(0);
     MPU6050_SetClockSource(MPU6050_CLOCK_INTERNAL);
     //MPU6050_SetDlpf(MPU6050_DLPF_BW_20);

@@ -8,8 +8,10 @@ typedef enum {
 typedef struct {
     source device;
     union {
-        float gyro_x; 
-        float acc_x;
+        struct {
+            float gyro_x; 
+            float acc_x;
+        } vec2;
         int32_t distance;
     };
 } measurment;
