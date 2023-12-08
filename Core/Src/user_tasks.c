@@ -18,7 +18,7 @@ void demo_tof(void* args)
   VL6180_WaitDeviceBooted(dev);
   VL6180_InitData(dev);
   VL6180_Prepare(dev);
-  VL6180_SetOffsetCalibrationData(dev, VL6180_GetOffsetCalibrationData(dev));
+  VL6180_UpscaleSetScaling(dev, 1);
   VL6180_RangeSetInterMeasPeriod(dev, 1000);
   VL6180_SetupGPIO1(dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
   VL6180_RangeConfigInterrupt(dev, CONFIG_GPIO_INTERRUPT_NEW_SAMPLE_READY);
@@ -33,7 +33,8 @@ void demo_tof(void* args)
     taskENTER_CRITICAL();
     VL6180_RangeGetMeasurement(dev, &data);
     VL6180_ClearAllInterrupt(dev);
-    m.distance = data.range_mm;
+    m.distance = 3*data.range_mm;
+    printf("%s\r\n", VL6180_RangeGetStatusErrString(data.errorStatus));
     xQueueSend(*message_queue, &m, portMAX_DELAY);
     taskEXIT_CRITICAL();
     vTaskResume(taskh);

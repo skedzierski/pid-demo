@@ -54,7 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @li 3 : Fixed scaling by 3
  * @li  -1 -2 -3 : Run time programmable through @a VL6180_UpscaleSetScaling(). Default scaling factore is -VL6180_UPSCALE_SUPPORT \n
  */
-#define VL6180_UPSCALE_SUPPORT -3
+#define VL6180_UPSCALE_SUPPORT -1
 
 
 /**
