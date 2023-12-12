@@ -19,14 +19,17 @@ typedef enum
   MPU6050_OK       = 0x00U,
   MPU6050_I2C_ERR  = 0x01U,
   MPU6050_ARG_ERR  = 0x02U,
+  MPU6050_TIMEOUT  = 0x03U,
 } MPU6050_StatusTypeDef;
 
 MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef *hi2c, uint8_t address_select, uint32_t i2c_timeout);
 MPU6050_StatusTypeDef MPU6050_GetDeviceID(MPU6050_HandleTypeDef *dev, uint8_t *data);
 MPU6050_StatusTypeDef MPU6050_DeviceReset(MPU6050_HandleTypeDef *dev);
+MPU6050_StatusTypeDef MPU6050_WaitForReset(MPU6050_HandleTypeDef *dev, uint32_t timeout);
 MPU6050_StatusTypeDef MPU6050_SetSleepMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
 MPU6050_StatusTypeDef MPU6050_SetClockSource(MPU6050_HandleTypeDef *dev, uint8_t clk_source);
 MPU6050_StatusTypeDef MPU6050_SetDLPF(MPU6050_HandleTypeDef *dev, uint8_t filter_value);
+MPU6050_StatusTypeDef MPU6050_SetADLPF(MPU6050_HandleTypeDef *dev, uint8_t filter_value);
 MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(MPU6050_HandleTypeDef *dev, uint8_t gyro_range);
 MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(MPU6050_HandleTypeDef *dev, uint8_t accel_range);
 MPU6050_StatusTypeDef MPU6050_GetGyroScale(MPU6050_HandleTypeDef *dev, float *gyro_scale);

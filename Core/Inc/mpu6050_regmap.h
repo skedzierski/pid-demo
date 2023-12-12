@@ -15,6 +15,7 @@
 #define MPU6050_RA_CONFIG           0x1A
 #define MPU6050_RA_GYRO_CONFIG      0x1B
 #define MPU6050_RA_ACCEL_CONFIG     0x1C
+#define MPU6050_RA_ACCEL_CONFIG_2   0x1D
 // Not in documentation
 #define MPU6050_RA_FF_THR           0x1D
 #define MPU6050_RA_FF_DUR           0x1E
@@ -186,6 +187,17 @@
 #define MPU6050_ACCEL_FS_4          0x01
 #define MPU6050_ACCEL_FS_8          0x02
 #define MPU6050_ACCEL_FS_16         0x03
+
+//	Register 28 � Accelerometer Configuration
+//	ACCEL_CONFIG_2
+
+#define MPU6050_A_DLPF_BW_460         0x00
+#define MPU6050_A_DLPF_BW_184         0x01
+#define MPU6050_A_DLPF_BW_92          0x02
+#define MPU6050_A_DLPF_BW_41          0x03
+#define MPU6050_A_DLPF_BW_20          0x04
+#define MPU6050_A_DLPF_BW_10          0x05
+#define MPU6050_A_DLPF_BW_5           0x06
 
 //
 //

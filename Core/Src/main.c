@@ -107,6 +107,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   test = MPU6050_Init(&mpu6050_dev, &hi2c1, 0, 30);
   test = MPU6050_SetDLPF(&mpu6050_dev, MPU6050_DLPF_BW_20);
+  test = MPU6050_SetADLPF(&mpu6050_dev, MPU6050_A_DLPF_BW_20);
   test = MPU6050_SetFullScaleGyroRange(&mpu6050_dev, MPU6050_GYRO_FS_250);
   test = MPU6050_SetFullScaleAccelRange(&mpu6050_dev, MPU6050_ACCEL_FS_2);
   test = MPU6050_GetDeviceID(&mpu6050_dev, &whoami);

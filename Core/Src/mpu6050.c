@@ -30,7 +30,7 @@ MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef
     else return MPU6050_ARG_ERR;
 	  ret = MPU6050_DeviceReset(dev);
     if(ret) return ret;
-    HAL_Delay(50);  //TODO Remove
+    MPU6050_WaitForReset(dev, 1000);
     MPU6050_SetSleepMode(dev, 0);
     MPU6050_SetClockSource(dev, MPU6050_CLOCK_INTERNAL);
     //MPU6050_SetDlpf(MPU6050_DLPF_BW_20);
@@ -49,7 +49,7 @@ MPU6050_StatusTypeDef MPU6050_GetDeviceID(MPU6050_HandleTypeDef *dev, uint8_t *d
 {
 	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_WHO_AM_I, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; // TODO Change ADDRES_LOW according to i2c_addres_setting
 	*data = *data<<1;
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -58,12 +58,30 @@ MPU6050_StatusTypeDef MPU6050_GetDeviceID(MPU6050_HandleTypeDef *dev, uint8_t *d
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_DeviceReset(MPU6050_HandleTypeDef *dev){
-    uint8_t data;
+  uint8_t data;
 	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	//data &= ~(1<<MPU6050_PWR1_DEVICE_RESET_BIT);
 	data |= (1 << MPU6050_PWR1_DEVICE_RESET_BIT);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-    return MPU6050_OK;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  Checks DEVICE_RESET bit untill it clears.
+  * @param  dev MPU6050 Handler
+  * @param  timeout Time in SysTicks untill functions returns if DEVICE_RESET does not reset
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_WaitForReset(MPU6050_HandleTypeDef *dev, uint32_t timeout){
+  uint8_t data;
+  uint32_t time_start;
+  time_start = HAL_GetTick();
+  do{
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= 0b10000000;
+  if((time_start - HAL_GetTick()) > timeout)  return MPU6050_TIMEOUT;
+  }while(data != 0);
+  return MPU6050_OK;
 }
 
 /**
@@ -79,8 +97,8 @@ MPU6050_StatusTypeDef MPU6050_SetSleepMode(MPU6050_HandleTypeDef *dev, uint8_t m
 	data &= ~(1<<MPU6050_PWR1_SLEEP_BIT);
 	data |= ((mode & 0b00000001) << MPU6050_PWR1_SLEEP_BIT);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-    return MPU6050_OK;
-}
+  return MPU6050_OK;
+}//TODO Add ARG_ERR check
 
 /**
   * @brief  Select MPU6050 clock source
@@ -95,13 +113,13 @@ MPU6050_StatusTypeDef MPU6050_SetClockSource(MPU6050_HandleTypeDef *dev, uint8_t
 	data &= 0b11111000;
 	data |= (clk_source & 0b00000111);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-    return MPU6050_OK;
-}
+  return MPU6050_OK;
+}//TODO Add ARG_ERR check
 
 /**
   * @brief  Configure MPU6050 Data Low Pass Filter. This filter only applies for gyroscope and temperature sensor.
   * @param  dev MPU6050 Handler
-  * @param  clk_source Use MPU6050_DLPF_BW_* defined values to select filter bandiwdth.
+  * @param  filter_value Use MPU6050_DLPF_BW_* defined values to select filter bandiwdth.
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetDLPF(MPU6050_HandleTypeDef *dev, uint8_t filter_value)
@@ -111,8 +129,24 @@ MPU6050_StatusTypeDef MPU6050_SetDLPF(MPU6050_HandleTypeDef *dev, uint8_t filter
 	data &= 0b11111000;
 	data |= (filter_value & 0b00000111);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_CONFIG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-    return MPU6050_OK;
-}
+  return MPU6050_OK;
+}//TODO Add ARG_ERR check
+
+/**
+  * @brief  Configure MPU6050 Accelerometer Data Low Pass Filter. This filter only applies for accelerometer.
+  * @param  dev MPU6050 Handler
+  * @param  filter_value Use MPU6050_A_DLPF_BW_* defined values to select filter bandiwdth.
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetADLPF(MPU6050_HandleTypeDef *dev, uint8_t filter_value)
+{
+	uint8_t data;
+	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_CONFIG_2, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+	data &= 0b11111000;
+	data |= (filter_value & 0b00000111);
+	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_CONFIG_2, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  return MPU6050_OK;
+}//TODO Add ARG_ERR check
 
 /**
   * @brief  Set MPU6050 gyroscope full scale range
@@ -146,7 +180,7 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(MPU6050_HandleTypeDef *dev, 
             return MPU6050_ARG_ERR;
 			break;
 	}
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -181,7 +215,7 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(MPU6050_HandleTypeDef *dev,
             return MPU6050_ARG_ERR;
 			break;
 	}
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -193,9 +227,9 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(MPU6050_HandleTypeDef *dev,
 MPU6050_StatusTypeDef MPU6050_GetRotationXRAW(MPU6050_HandleTypeDef *dev, int16_t *gyro_x)
 {
 	uint8_t data[2];
-    if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_XOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_XOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*gyro_x = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -207,9 +241,9 @@ MPU6050_StatusTypeDef MPU6050_GetRotationXRAW(MPU6050_HandleTypeDef *dev, int16_
 MPU6050_StatusTypeDef MPU6050_GetRotationYRAW(MPU6050_HandleTypeDef *dev, int16_t *gyro_y)
 {
 	uint8_t data[2];
-    if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_YOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_YOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*gyro_y = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -221,9 +255,9 @@ MPU6050_StatusTypeDef MPU6050_GetRotationYRAW(MPU6050_HandleTypeDef *dev, int16_
 MPU6050_StatusTypeDef MPU6050_GetRotationZRAW(MPU6050_HandleTypeDef *dev, int16_t *gyro_z)
 {
 	uint8_t data[2];
-    if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_ZOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_ZOUT_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*gyro_z = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -235,7 +269,7 @@ MPU6050_StatusTypeDef MPU6050_GetRotationZRAW(MPU6050_HandleTypeDef *dev, int16_
 MPU6050_StatusTypeDef MPU6050_GetGyroScale(MPU6050_HandleTypeDef *dev, float *gyro_scale)
 {
 	*gyro_scale = dev->gyro_scale;
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -249,7 +283,7 @@ MPU6050_StatusTypeDef MPU6050_GetAccelerationXRAW(MPU6050_HandleTypeDef *dev, in
 	uint8_t data[2];
 	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_XOUT_H, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*accel_x = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -263,7 +297,7 @@ MPU6050_StatusTypeDef MPU6050_GetAccelerationYRAW(MPU6050_HandleTypeDef *dev, in
 	uint8_t data[2];
 	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_YOUT_H, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*accel_y = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -277,7 +311,7 @@ MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(MPU6050_HandleTypeDef *dev, in
 	uint8_t data[2];
 	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_ZOUT_H, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*accel_z = (((int16_t)data[0]) << 8) | data[1];
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
 
 /**
@@ -289,5 +323,5 @@ MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(MPU6050_HandleTypeDef *dev, in
 MPU6050_StatusTypeDef MPU6050_GetAccelScale(MPU6050_HandleTypeDef *dev, float *accel_scale)
 {
 	*accel_scale = dev->accel_scale;
-    return MPU6050_OK;
+  return MPU6050_OK;
 }
