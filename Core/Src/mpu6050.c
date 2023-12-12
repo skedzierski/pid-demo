@@ -387,18 +387,7 @@ MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uin
   * @param  mode
   * @retval MPU6050 status
   */
-MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
-
-  return MPU6050_OK;
-}
-
-/**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
-  * @retval MPU6050 status
-  */
-MPU6050_StatusTypeDef MPU6050_EnableRawDataReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode){
+MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode){
 
   return MPU6050_OK;
 }

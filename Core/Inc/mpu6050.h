@@ -53,9 +53,8 @@ MPU6050_StatusTypeDef MPU6050_SetIntPinActiveLevel(MPU6050_HandleTypeDef *dev, u
 MPU6050_StatusTypeDef MPU6050_SetIntPinMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
 MPU6050_StatusTypeDef MPU6050_SetIntPinLatch(MPU6050_HandleTypeDef *dev, uint8_t mode);
 MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
-MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
 
-MPU6050_StatusTypeDef MPU6050_EnableRawDataReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode);
+MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode);
 
 
 #endif
