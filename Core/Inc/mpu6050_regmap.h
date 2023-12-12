@@ -1,3 +1,24 @@
+/*
+ *  Created on: 08.10.2018
+ *  	License: MIT
+ *      Author: Mateusz Salamon
+ *      Based on:
+ *      	 - MPU-6000 and MPU-6050 Product Specification Revision 3.4
+ *      	 - MPU-6000 and MPU-6050 Register Map and Descriptions Revision 4.2
+ *      	 - i2cdevlib by Jeff Rowberg on MIT license
+ *      	 - SparkFun MPU-9250 Digital Motion Processor (DMP) Arduino Library on MIT License
+ *
+ *		www.msalamon.pl
+ *		mateusz@msalamon.pl
+ *
+ *	Website: https://msalamon.pl/6-stopni-swobody-z-mpu6050-na-stm32/
+ *	GitHub: https://github.com/lamik/MPU6050_STM32_HAL
+ */
+
+/*
+ *      Modified by: Karol Michalski
+ */
+
 #ifndef MPU6050_REGMAP_H_
 #define MPU6050_REGMAP_H_
 

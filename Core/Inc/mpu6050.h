@@ -1,3 +1,10 @@
+/*
+ * mpu6050.c
+ *
+ *      Author: Karol Michalski
+ *      MPU-6050 Accelerometer and gyroscoper driver
+ */
+
 #ifndef MPU6050_H_
 #define MPU6050_H_
 
@@ -40,5 +47,15 @@ MPU6050_StatusTypeDef MPU6050_GetAccelScale(MPU6050_HandleTypeDef *dev, float *a
 MPU6050_StatusTypeDef MPU6050_GetAccelerationXRAW(MPU6050_HandleTypeDef *dev, int16_t *accel_x);
 MPU6050_StatusTypeDef MPU6050_GetAccelerationYRAW(MPU6050_HandleTypeDef *dev, int16_t *accel_y);
 MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(MPU6050_HandleTypeDef *dev, int16_t *accel_z);
+MPU6050_StatusTypeDef MPU6050_SetSampleRateDiv(MPU6050_HandleTypeDef *dev, uint8_t div);
+
+MPU6050_StatusTypeDef MPU6050_SetIntPinActiveLevel(MPU6050_HandleTypeDef *dev, uint8_t level);
+MPU6050_StatusTypeDef MPU6050_SetIntPinMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
+MPU6050_StatusTypeDef MPU6050_SetIntPinLatch(MPU6050_HandleTypeDef *dev, uint8_t mode);
+MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
+MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
+
+MPU6050_StatusTypeDef MPU6050_EnableRawDataReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode);
+
 
 #endif

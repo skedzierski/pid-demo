@@ -7,10 +7,6 @@
 
 #include "mpu6050.h"
 
-//I2C_HandleTypeDef *i2c; //test
-//#define I2C_TIMEOUT 10 //test
-
-//MPU6050_HandleTypeDef mpu6050_handle;
 
 /**
   * @brief  Initialise MPU6050 device
@@ -323,5 +319,86 @@ MPU6050_StatusTypeDef MPU6050_GetAccelerationZRAW(MPU6050_HandleTypeDef *dev, in
 MPU6050_StatusTypeDef MPU6050_GetAccelScale(MPU6050_HandleTypeDef *dev, float *accel_scale)
 {
 	*accel_scale = dev->accel_scale;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  Set MPU6050 internal sample rate divider. This division only works when base Fs = 1kHz. Refer to page 12,14 and 15 of register map for details
+  * @param  dev MPU6050 Handler
+  * @param  div Sample rate division
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetSampleRateDiv(MPU6050_HandleTypeDef *dev, uint8_t div){
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_SMPLRT_DIV, 1, &div, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetIntPinActiveLevel(MPU6050_HandleTypeDef *dev, uint8_t level){
+  uint8_t data;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= ~(1<<MPU6050_INTCFG_INT_LEVEL_BIT);
+  data |= ((level & 0b00000001) << MPU6050_INTCFG_INT_LEVEL_BIT);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetIntPinMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
+
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetIntPinLatch(MPU6050_HandleTypeDef *dev, uint8_t mode){
+
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
+
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
+
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  
+  * @param  dev MPU6050 Handler
+  * @param  mode
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_EnableRawDataReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode){
+
   return MPU6050_OK;
 }

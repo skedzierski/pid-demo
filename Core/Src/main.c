@@ -114,6 +114,8 @@ int main(void)
   test = MPU6050_GetGyroScale(&mpu6050_dev, &gyro_scale);
   test = MPU6050_GetAccelScale(&mpu6050_dev, &accel_scale);
 
+  test = MPU6050_SetSampleRateDiv(&mpu6050_dev, 255);
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
