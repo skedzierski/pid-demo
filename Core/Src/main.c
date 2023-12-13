@@ -52,13 +52,28 @@ MPU6050_HandleTypeDef mpu6050_dev;
 
 uint8_t test = 123;
 uint8_t whoami = 0;
-int16_t gyro_x_raw = 0;
+
 float gyro_scale = 0;
+
+int16_t gyro_x_raw = 0;
 float gyro_x_scaled = 0;
 
-int16_t accel_x_raw = 0;
+int16_t gyro_y_raw = 0;
+float gyro_y_scaled = 0;
+
+int16_t gyro_z_raw = 0;
+float gyro_z_scaled = 0;
+
 float accel_scale = 0;
+
+int16_t accel_x_raw = 0;
 float accel_x_scaled = 0;
+
+int16_t accel_y_raw = 0;
+float accel_y_scaled = 0;
+
+int16_t accel_z_raw = 0;
+float accel_z_scaled = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -139,11 +154,17 @@ int main(void)
    
     test = MPU6050_GetRotationXRAW(&mpu6050_dev, &gyro_x_raw);
     gyro_x_scaled = (float)gyro_x_raw * gyro_scale;
-    //HAL_Delay(50);
+    test = MPU6050_GetRotationYRAW(&mpu6050_dev, &gyro_y_raw);
+    gyro_y_scaled = (float)gyro_y_raw * gyro_scale;
+    test = MPU6050_GetRotationZRAW(&mpu6050_dev, &gyro_z_raw);
+    gyro_z_scaled = (float)gyro_z_raw * gyro_scale;
+
     test = MPU6050_GetAccelerationXRAW(&mpu6050_dev, &accel_x_raw);
     accel_x_scaled = (float)accel_x_raw * accel_scale;
-    //HAL_Delay(50);
-    //HAL_Delay(5000);
+    test = MPU6050_GetAccelerationYRAW(&mpu6050_dev, &accel_y_raw);
+    accel_y_scaled = (float)accel_y_raw * accel_scale;
+    test = MPU6050_GetAccelerationZRAW(&mpu6050_dev, &accel_z_raw);
+    accel_z_scaled = (float)accel_z_raw * accel_scale;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

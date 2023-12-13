@@ -44,7 +44,7 @@ MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef
   */
 MPU6050_StatusTypeDef MPU6050_GetDeviceID(MPU6050_HandleTypeDef *dev, uint8_t *data)
 {
-	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_WHO_AM_I, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; // TODO Change ADDRES_LOW according to i2c_addres_setting
+	if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_WHO_AM_I, 1, data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
 	*data = *data<<1;
   return MPU6050_OK;
 }
@@ -330,7 +330,7 @@ MPU6050_StatusTypeDef MPU6050_GetAccelScale(MPU6050_HandleTypeDef *dev, float *a
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetSampleRateDiv(MPU6050_HandleTypeDef *dev, uint8_t div){
-  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_SMPLRT_DIV, 1, &div, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_SMPLRT_DIV, 1, &div, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
 }
 
@@ -391,10 +391,6 @@ MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uin
   data &= ~(1<<MPU6050_INTCFG_INT_RD_CLEAR_BIT);
   data |= ((mode & 0b00000001) << MPU6050_INTCFG_INT_RD_CLEAR_BIT);
   if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-  
-  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; //TODO Delete
-  HAL_Delay(1);
-
   return MPU6050_OK;
 }
 
@@ -410,9 +406,5 @@ MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint
   data &= ~(1<<MPU6050_INTEN_RAWREADY_BIT);
   data |= ((mode & 0b00000001) << MPU6050_INTEN_RAWREADY_BIT);
   if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_ENABLE, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-
-  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_ENABLE, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; //TODO Delete
-  HAL_Delay(1);
-
   return MPU6050_OK;
 }
