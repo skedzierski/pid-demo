@@ -115,6 +115,11 @@ int main(void)
   test = MPU6050_GetAccelScale(&mpu6050_dev, &accel_scale);
 
   test = MPU6050_SetSampleRateDiv(&mpu6050_dev, 255);
+  test = MPU6050_SetIntPinActiveLevel(&mpu6050_dev, MPU6050_INTLVL_ACTIVELOW);
+  test = MPU6050_SetIntPinMode(&mpu6050_dev, MPU6050_INTDRV_OPENDRAIN);
+  test = MPU6050_SetIntPinLatch(&mpu6050_dev, MPU6050_INTLATCH_50USPULSE);
+  test = MPU6050_SetIntPinClearMode(&mpu6050_dev, MPU6050_INTCLEAR_ANYREAD);
+  test = MPU6050_EnableRawReadyInt(&mpu6050_dev, MPU6050_INTRAWREADY_ENABLE);
 
   /* USER CODE END 2 */
 

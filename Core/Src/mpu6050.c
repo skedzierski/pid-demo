@@ -26,6 +26,7 @@ MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef
     else return MPU6050_ARG_ERR;
 	  ret = MPU6050_DeviceReset(dev);
     if(ret) return ret;
+    HAL_Delay(100); //TODO Delete
     MPU6050_WaitForReset(dev, 1000);
     MPU6050_SetSleepMode(dev, 0);
     MPU6050_SetClockSource(dev, MPU6050_CLOCK_INTERNAL);
@@ -334,9 +335,9 @@ MPU6050_StatusTypeDef MPU6050_SetSampleRateDiv(MPU6050_HandleTypeDef *dev, uint8
 }
 
 /**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
+  * @brief  Set MPU6050 INT pin active level
+  * @param  dev  MPU6050 Handler
+  * @param  level Use MPU6050_INTLVL_* to configure INT pin active level
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetIntPinActiveLevel(MPU6050_HandleTypeDef *dev, uint8_t level){
@@ -349,45 +350,69 @@ MPU6050_StatusTypeDef MPU6050_SetIntPinActiveLevel(MPU6050_HandleTypeDef *dev, u
 }
 
 /**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
+  * @brief  Set MPU6050 INT pin mode
+  * @param  dev  MPU6050 Handler
+  * @param  mode Use MPU6050_INTDRV_* to configure INT pin mode
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetIntPinMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
-
+  uint8_t data;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= ~(1<<MPU6050_INTCFG_INT_PINMODE_BIT);
+  data |= ((mode & 0b00000001) << MPU6050_INTCFG_INT_PINMODE_BIT);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
 }
 
 /**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
+  * @brief  Set MPU6050 INT pin latching
+  * @param  dev  MPU6050 Handler
+  * @param  mode Use MPU6050_INTLATCH_* to configure INT pin latching
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetIntPinLatch(MPU6050_HandleTypeDef *dev, uint8_t mode){
-
+  uint8_t data;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= ~(1<<MPU6050_INTCFG_LATCH_INT_EN_BIT);
+  data |= ((mode & 0b00000001) << MPU6050_INTCFG_LATCH_INT_EN_BIT);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
 }
 
 /**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
+  * @brief  Set MPU6050 INT status clear mode
+  * @param  dev  MPU6050 Handler
+  * @param  mode Use MPU6050_INTCLEAR_* to configure INT pin clearing
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode){
+  uint8_t data;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= ~(1<<MPU6050_INTCFG_INT_RD_CLEAR_BIT);
+  data |= ((mode & 0b00000001) << MPU6050_INTCFG_INT_RD_CLEAR_BIT);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_PIN_CFG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; //TODO Delete
+  HAL_Delay(1);
 
   return MPU6050_OK;
 }
 
 /**
-  * @brief  
-  * @param  dev MPU6050 Handler
-  * @param  mode
+  * @brief  Enable/Disable MPU6050 raw data ready interrupt
+  * @param  dev  MPU6050 Handler
+  * @param  mode Use MPU6050_INTRAWREADY_* to enable or disable RAW_RDY interrupt
   * @retval MPU6050 status
   */
 MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode){
+  uint8_t data;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_ENABLE, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  data &= ~(1<<MPU6050_INTEN_RAWREADY_BIT);
+  data |= ((mode & 0b00000001) << MPU6050_INTEN_RAWREADY_BIT);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_ENABLE, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_ENABLE, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR; //TODO Delete
+  HAL_Delay(1);
 
   return MPU6050_OK;
 }
