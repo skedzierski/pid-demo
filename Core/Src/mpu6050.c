@@ -26,13 +26,12 @@ MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef
     else return MPU6050_ARG_ERR;
 	  ret = MPU6050_DeviceReset(dev);
     if(ret) return ret;
-    HAL_Delay(100); //TODO Delete
-    MPU6050_WaitForReset(dev, 1000);
-    MPU6050_SetSleepMode(dev, 0);
-    MPU6050_SetClockSource(dev, MPU6050_CLOCK_INTERNAL);
-    //MPU6050_SetDlpf(MPU6050_DLPF_BW_20);
-    //MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    //MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    ret = MPU6050_WaitForReset(dev, 1000);
+    if(ret) return ret;
+    ret = MPU6050_SetClockSource(dev, MPU6050_CLOCK_INTERNAL);
+    if(ret) return ret;
+    ret = MPU6050_SetSleepMode(dev, 0);
+    if(ret) return ret;
     return MPU6050_OK;
 }
 
@@ -71,12 +70,12 @@ MPU6050_StatusTypeDef MPU6050_DeviceReset(MPU6050_HandleTypeDef *dev){
   */
 MPU6050_StatusTypeDef MPU6050_WaitForReset(MPU6050_HandleTypeDef *dev, uint32_t timeout){
   uint8_t data;
-  uint32_t time_start;
-  time_start = HAL_GetTick();
+  //uint32_t time_start;
+  //time_start = HAL_GetTick();
   do{
   if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   data &= 0b10000000;
-  if((time_start - HAL_GetTick()) > timeout)  return MPU6050_TIMEOUT;
+  //if((time_start - HAL_GetTick()) > timeout)  return MPU6050_TIMEOUT;
   }while(data != 0);
   return MPU6050_OK;
 }
@@ -95,7 +94,7 @@ MPU6050_StatusTypeDef MPU6050_SetSleepMode(MPU6050_HandleTypeDef *dev, uint8_t m
 	data |= ((mode & 0b00000001) << MPU6050_PWR1_SLEEP_BIT);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
-}//TODO Add ARG_ERR check
+}
 
 /**
   * @brief  Select MPU6050 clock source
@@ -111,7 +110,7 @@ MPU6050_StatusTypeDef MPU6050_SetClockSource(MPU6050_HandleTypeDef *dev, uint8_t
 	data |= (clk_source & 0b00000111);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_PWR_MGMT_1, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
-}//TODO Add ARG_ERR check
+}
 
 /**
   * @brief  Configure MPU6050 Data Low Pass Filter. This filter only applies for gyroscope and temperature sensor.
@@ -127,7 +126,7 @@ MPU6050_StatusTypeDef MPU6050_SetDLPF(MPU6050_HandleTypeDef *dev, uint8_t filter
 	data |= (filter_value & 0b00000111);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_CONFIG, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
-}//TODO Add ARG_ERR check
+}
 
 /**
   * @brief  Configure MPU6050 Accelerometer Data Low Pass Filter. This filter only applies for accelerometer.
@@ -143,7 +142,7 @@ MPU6050_StatusTypeDef MPU6050_SetADLPF(MPU6050_HandleTypeDef *dev, uint8_t filte
 	data |= (filter_value & 0b00000111);
 	if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_ACCEL_CONFIG_2, 1, &data, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
-}//TODO Add ARG_ERR check
+}
 
 /**
   * @brief  Set MPU6050 gyroscope full scale range
@@ -177,6 +176,7 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleGyroRange(MPU6050_HandleTypeDef *dev, 
             return MPU6050_ARG_ERR;
 			break;
 	}
+  dev->gyro_fs = gyro_range;
   return MPU6050_OK;
 }
 
@@ -212,6 +212,7 @@ MPU6050_StatusTypeDef MPU6050_SetFullScaleAccelRange(MPU6050_HandleTypeDef *dev,
             return MPU6050_ARG_ERR;
 			break;
 	}
+  dev->accel_fs = accel_range;
   return MPU6050_OK;
 }
 
@@ -415,19 +416,49 @@ MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint
   * @param  samples Number of values in data
   * @retval Calculated average
   */
-static int16_t MPU6050_CalculateAverage(const int16_t *data, uint32_t samples){
+static int16_t MPU6050_CalculateOffset(const int16_t *data, uint32_t samples, uint8_t gyro_range){
   int32_t result = 0;
   for(uint32_t i=0; i<samples; i++){
     result += (int32_t)data[i];
   }
   result = result - (result % (int32_t)samples);
   result /= (int32_t)samples;
-  //result *= 4; //TODO Very very bad
+  switch(gyro_range)
+  {
+    case MPU6050_GYRO_FS_250:
+      result /= 4;
+      break;
+    case MPU6050_GYRO_FS_500:
+      result /= 2;
+      break;
+    case MPU6050_GYRO_FS_1000:
+      //result = result;
+      break;
+    case MPU6050_GYRO_FS_2000:
+      result *= 2;
+      break;
+    default:
+      result = 0;
+      break;
+  }
   return (int16_t)result;
 }
 
 /**
-  * @brief  Measure MPU6050 gryo offset in X axis
+  * @brief  Check if raw data is ready to be read
+  * @param  dev  MPU6050 Handler
+  * @param  status Pointer to variable which will be set to 1 if data is ready or 0 if not
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_CheckDataReady(MPU6050_HandleTypeDef *dev, uint8_t *status){
+  uint8_t temp;
+  if(HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_INT_STATUS, 1, &temp, 1, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  *status = temp & 0b00000001;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  Measure MPU6050 gryo offset in X axis.
   * @param  dev  MPU6050 Handler
   * @param  offset Pointer to int16_t variable in which measured offset will be saved
   * @retval MPU6050 status
@@ -435,11 +466,16 @@ static int16_t MPU6050_CalculateAverage(const int16_t *data, uint32_t samples){
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetX(MPU6050_HandleTypeDef *dev, int16_t *offset){
   MPU6050_StatusTypeDef ret = MPU6050_OK;
   int16_t data[MPU6050_GYRO_OFFSET_SAMPLES] = {0};
+  uint8_t data_ready = 0;
   for(uint32_t i=0; i<MPU6050_GYRO_OFFSET_SAMPLES; i++){
+    do{
+      ret = MPU6050_CheckDataReady(dev, &data_ready);
+      if(ret != MPU6050_OK) return ret;
+    }while(data_ready == 0);
     ret = MPU6050_GetRotationXRAW(dev, &data[i]);
     if(ret != MPU6050_OK) return ret;
   }
-  *offset = (-1)*MPU6050_CalculateAverage(data, MPU6050_GYRO_OFFSET_SAMPLES);
+  *offset = (-1)*MPU6050_CalculateOffset(data, MPU6050_GYRO_OFFSET_SAMPLES, dev->gyro_fs);
   return MPU6050_OK;
 }
 
@@ -452,11 +488,16 @@ MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetX(MPU6050_HandleTypeDef *dev, int
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetY(MPU6050_HandleTypeDef *dev, int16_t *offset){
   MPU6050_StatusTypeDef ret = MPU6050_OK;
   int16_t data[MPU6050_GYRO_OFFSET_SAMPLES] = {0};
+  uint8_t data_ready = 0;
   for(uint32_t i=0; i<MPU6050_GYRO_OFFSET_SAMPLES; i++){
+    do{
+      ret = MPU6050_CheckDataReady(dev, &data_ready);
+      if(ret != MPU6050_OK) return ret;
+    }while(data_ready == 0);
     ret = MPU6050_GetRotationYRAW(dev, &data[i]);
     if(ret != MPU6050_OK) return ret;
   }
-  *offset = MPU6050_CalculateAverage(data, MPU6050_GYRO_OFFSET_SAMPLES);
+  *offset = (-1)*MPU6050_CalculateOffset(data, MPU6050_GYRO_OFFSET_SAMPLES, dev->gyro_fs);
   return MPU6050_OK;
 }
 
@@ -469,11 +510,16 @@ MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetY(MPU6050_HandleTypeDef *dev, int
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetZ(MPU6050_HandleTypeDef *dev, int16_t *offset){
   MPU6050_StatusTypeDef ret = MPU6050_OK;
   int16_t data[MPU6050_GYRO_OFFSET_SAMPLES] = {0};
+  uint8_t data_ready = 0;
   for(uint32_t i=0; i<MPU6050_GYRO_OFFSET_SAMPLES; i++){
+    do{
+      MPU6050_CheckDataReady(dev, &data_ready);
+      if(ret != MPU6050_OK) return ret;
+    }while(data_ready == 0);
     ret = MPU6050_GetRotationZRAW(dev, &data[i]);
     if(ret != MPU6050_OK) return ret;
   }
-  *offset = MPU6050_CalculateAverage(data, MPU6050_GYRO_OFFSET_SAMPLES);
+  *offset = (-1)*MPU6050_CalculateOffset(data, MPU6050_GYRO_OFFSET_SAMPLES, dev->gyro_fs);
   return MPU6050_OK;
 }
 
@@ -485,23 +531,37 @@ MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetZ(MPU6050_HandleTypeDef *dev, int
   */
 MPU6050_StatusTypeDef MPU6050_SetGyroOffsetX(MPU6050_HandleTypeDef *dev, int16_t offset){
   uint8_t data[2];
-
-  volatile int16_t test = (offset)>>8; //TODO test
-  volatile uint16_t test2 = 0; //TODO test
-
-  test2 = ((uint16_t)offset) >> 8; //TODO test
-
   data[0] = (uint8_t)(((uint16_t)offset)>>8);
   data[1] = (uint8_t)(offset);
-
   if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_XOFFSET_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
-  
-  data[0] = 0;
-  data[1] = 0;
+  return MPU6050_OK;
+}
 
-  HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_XOFFSET_H, 1, &data[0], 2, dev->i2c_timeout); //TODO test
-  HAL_I2C_Mem_Read(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_XOFFSET_L, 1, &data[1], 2, dev->i2c_timeout); //TODO test
-  HAL_Delay(1); //TODO Test
+/**
+  * @brief  Set MPU6050 gryo offset in Y axis
+  * @param  dev  MPU6050 Handler
+  * @param  offset Offset to set
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetGyroOffsetY(MPU6050_HandleTypeDef *dev, int16_t offset){
+  uint8_t data[2];
+  data[0] = (uint8_t)(((uint16_t)offset)>>8);
+  data[1] = (uint8_t)(offset);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_YOFFSET_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
+  return MPU6050_OK;
+}
+
+/**
+  * @brief  Set MPU6050 gryo offset in Z axis
+  * @param  dev  MPU6050 Handler
+  * @param  offset Offset to set
+  * @retval MPU6050 status
+  */
+MPU6050_StatusTypeDef MPU6050_SetGyroOffsetZ(MPU6050_HandleTypeDef *dev, int16_t offset){
+  uint8_t data[2];
+  data[0] = (uint8_t)(((uint16_t)offset)>>8);
+  data[1] = (uint8_t)(offset);
+  if(HAL_I2C_Mem_Write(dev->i2c_handle, dev->i2c_address, MPU6050_RA_GYRO_ZOFFSET_H, 1, data, 2, dev->i2c_timeout)) return MPU6050_I2C_ERR;
   return MPU6050_OK;
 }
 

@@ -55,6 +55,8 @@ uint8_t whoami = 0;
 
 float gyro_scale = 0;
 int16_t gyro_x_offset = 0;
+int16_t gyro_y_offset = 0;
+int16_t gyro_z_offset = 0;
 
 int16_t gyro_x_raw = 0;
 float gyro_x_scaled = 0;
@@ -124,22 +126,25 @@ int main(void)
   test = MPU6050_Init(&mpu6050_dev, &hi2c1, 0, 30);
   test = MPU6050_SetDLPF(&mpu6050_dev, MPU6050_DLPF_BW_20);
   test = MPU6050_SetADLPF(&mpu6050_dev, MPU6050_A_DLPF_BW_20);
-  test = MPU6050_SetFullScaleGyroRange(&mpu6050_dev, MPU6050_GYRO_FS_2000);
+  test = MPU6050_SetFullScaleGyroRange(&mpu6050_dev, MPU6050_GYRO_FS_250);
   test = MPU6050_SetFullScaleAccelRange(&mpu6050_dev, MPU6050_ACCEL_FS_2);
   test = MPU6050_GetDeviceID(&mpu6050_dev, &whoami);
   test = MPU6050_GetGyroScale(&mpu6050_dev, &gyro_scale);
   test = MPU6050_GetAccelScale(&mpu6050_dev, &accel_scale);
 
-  test = MPU6050_GetRotationXRAW(&mpu6050_dev, &gyro_x_raw);
   test = MPU6050_MeasureGyroOffsetX(&mpu6050_dev, &gyro_x_offset);
   test = MPU6050_SetGyroOffsetX(&mpu6050_dev, gyro_x_offset);
+  test = MPU6050_MeasureGyroOffsetY(&mpu6050_dev, &gyro_y_offset);
+  test = MPU6050_SetGyroOffsetY(&mpu6050_dev, gyro_y_offset);
+  test = MPU6050_MeasureGyroOffsetZ(&mpu6050_dev, &gyro_z_offset);
+  test = MPU6050_SetGyroOffsetZ(&mpu6050_dev, gyro_z_offset);
 
-  // test = MPU6050_SetSampleRateDiv(&mpu6050_dev, 255);
-  // test = MPU6050_SetIntPinActiveLevel(&mpu6050_dev, MPU6050_INTLVL_ACTIVELOW);
-  // test = MPU6050_SetIntPinMode(&mpu6050_dev, MPU6050_INTDRV_OPENDRAIN);
-  // test = MPU6050_SetIntPinLatch(&mpu6050_dev, MPU6050_INTLATCH_50USPULSE);
-  // test = MPU6050_SetIntPinClearMode(&mpu6050_dev, MPU6050_INTCLEAR_ANYREAD);
-  // test = MPU6050_EnableRawReadyInt(&mpu6050_dev, MPU6050_INTRAWREADY_ENABLE);
+  test = MPU6050_SetSampleRateDiv(&mpu6050_dev, 255);
+  test = MPU6050_SetIntPinActiveLevel(&mpu6050_dev, MPU6050_INTLVL_ACTIVELOW);
+  test = MPU6050_SetIntPinMode(&mpu6050_dev, MPU6050_INTDRV_OPENDRAIN);
+  test = MPU6050_SetIntPinLatch(&mpu6050_dev, MPU6050_INTLATCH_50USPULSE);
+  test = MPU6050_SetIntPinClearMode(&mpu6050_dev, MPU6050_INTCLEAR_ANYREAD);
+  test = MPU6050_EnableRawReadyInt(&mpu6050_dev, MPU6050_INTRAWREADY_ENABLE);
 
  
 

@@ -20,7 +20,9 @@ typedef struct{
     uint8_t gyro_range;                  /*Currently set gyroscope full scale range     */
     float gyro_scale;                    /*Gyroscope scaler for current full range      */
     uint8_t accel_range;                 /*Currently set accelerometer full scale range */
-    float accel_scale;                   /*Accelerometer scaler for current full range  */     
+    float accel_scale;                   /*Accelerometer scaler for current full range  */
+    uint8_t gyro_fs;                     /*Gyro set full scale                          */
+    uint8_t accel_fs;                    /*Accelerometer set full scale                 */
 } MPU6050_HandleTypeDef;
 
 typedef enum 
@@ -28,7 +30,7 @@ typedef enum
   MPU6050_OK       = 0x00U,
   MPU6050_I2C_ERR  = 0x01U,
   MPU6050_ARG_ERR  = 0x02U,
-  MPU6050_TIMEOUT  = 0x03U,
+  MPU6050_TIMEOUT  = 0x03U,              //Not used
 } MPU6050_StatusTypeDef;
 
 MPU6050_StatusTypeDef MPU6050_Init(MPU6050_HandleTypeDef *dev, I2C_HandleTypeDef *hi2c, uint8_t address_select, uint32_t i2c_timeout);
@@ -56,9 +58,13 @@ MPU6050_StatusTypeDef MPU6050_SetIntPinLatch(MPU6050_HandleTypeDef *dev, uint8_t
 MPU6050_StatusTypeDef MPU6050_SetIntPinClearMode(MPU6050_HandleTypeDef *dev, uint8_t mode);
 MPU6050_StatusTypeDef MPU6050_EnableRawReadyInt(MPU6050_HandleTypeDef *dev, uint8_t mode);
 //int16_t MPU6050_CalculateAverage(const int16_t *data, uint32_t samples);
+MPU6050_StatusTypeDef MPU6050_CheckDataReady(MPU6050_HandleTypeDef *dev, uint8_t *status);
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetX(MPU6050_HandleTypeDef *dev, int16_t *offset);
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetY(MPU6050_HandleTypeDef *dev, int16_t *offset);
 MPU6050_StatusTypeDef MPU6050_MeasureGyroOffsetZ(MPU6050_HandleTypeDef *dev, int16_t *offset);
 MPU6050_StatusTypeDef MPU6050_SetGyroOffsetX(MPU6050_HandleTypeDef *dev, int16_t offset);
+MPU6050_StatusTypeDef MPU6050_SetGyroOffsetY(MPU6050_HandleTypeDef *dev, int16_t offset);
+MPU6050_StatusTypeDef MPU6050_SetGyroOffsetZ(MPU6050_HandleTypeDef *dev, int16_t offset);
+
 
 #endif
