@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +48,8 @@
 
 /* USER CODE BEGIN PV */
 uint32_t test = 0;
+float pos = 0.0;
+Servo_HandleTypeDef servo_dev;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,10 +71,7 @@ void MX_FREERTOS_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  HAL_TIM_PWM_Init(&htim3);
-  htim3.Init.Prescaler = 0;
-  //HAL_TIM_PWM_ConfigChannel(&htim3, );
-  htim3.Instance->CCR1 = 1000;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -97,17 +96,17 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  SERVO_Init(&servo_dev, &htim3, 84e6, 200, 5000, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();
+  //osKernelInitialize();
 
   /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -115,7 +114,20 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(100);
+
+    while(pos<180){
+      SERVO_SetPosition(&servo_dev, pos);
+      pos += 0.1;
+      HAL_Delay(1);
+    }
+    HAL_Delay(3000);
+    while(pos>0){
+      SERVO_SetPosition(&servo_dev, pos);
+      pos -= 0.1;
+      HAL_Delay(1);
+    }
+    HAL_Delay(3000);
+
     test++;
     /* USER CODE END WHILE */
 

@@ -23,7 +23,7 @@ typedef struct{
     uint32_t zero_pos_period;            /*CCR register value for 0deg position            */
     float pwm_step;                      /*Pulse width step                                */  
     float current_position;              /*Set servo position                              */
-    uint16_t current_pulse               /*CCR register value required for current_position*/
+    uint16_t current_pulse;               /*CCR register value required for current_position*/
 } Servo_HandleTypeDef;
 
 //TODO Change return type
