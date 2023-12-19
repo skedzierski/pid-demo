@@ -19,7 +19,7 @@ static void get_error_signal(PIDController_t* instance)
 static float h = TIME_DELTA;
 static float get_difference(float f_of_x, float f_of_x_minus_h)
 {
-    return (f_of_x_minus_h - f_of_x)/h;
+    return (f_of_x_minus_h - f_of_x);
 }
 
 static float dt = TIME_DELTA;
@@ -28,7 +28,7 @@ static float trapez(float* f, int len)
     float integral = 0;
     for(int i = 0; i < len; i++)
     {
-        integral += (f[i] + f[i+1])*dt/2.f; 
+        integral += f[i]; 
     }
     return integral;
 }
