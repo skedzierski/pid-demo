@@ -13,10 +13,7 @@ static void array_rshift(PIDController_t* instance)
 
 static void get_error_signal(PIDController_t* instance)
 {
-    for(int i = 0; i < PROCESS_SIGNAL_LEN; i++)
-    {
-        instance->error_signal[i] = instance->set_point[i] - instance->measured_set_point[i];
-    }
+    instance->error_signal[0] = instance->set_point[0] - instance->measured_set_point[0];
 }
 
 static float h = TIME_DELTA;
@@ -41,7 +38,7 @@ float PID_GetNewControl(PIDController_t* instance, float measured_set_point, flo
     array_rshift(instance);
     instance->measured_set_point[0] = measured_set_point;
     instance->set_point[0] = set_point;
-    get_error_signal(instance); //TODO: fix
+    get_error_signal(instance);
 
     float new_control = instance->P*instance->error_signal[0] + 
                         instance->I*trapez(instance->error_signal, PROCESS_SIGNAL_LEN) + 
@@ -60,11 +57,10 @@ int PID_GetInstance(PIDController_t* instance, float P, float I, float D)
     return 0;
 }
 
-float Adapter_map_from_client_to_device(Adapter_t* adapter, float value)
+float Adapter_map(Adapter_t* adapter, float value)
 {
-    float slope = (adapter->to_max - adapter->to_min) / (adapter->from_max - adapter->from_min);
-
-    return adapter->to_min + slope*(value - adapter->from_min);
+    float slope = (adapter->from_max - adapter->from_min) / (adapter->to_max - adapter->to_min);
+    return (value - adapter->to_min)*slope + adapter->to_min;
 }
 
 #if PROCESS_SIGNAL_LEN < 2

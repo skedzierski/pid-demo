@@ -77,7 +77,8 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 Core/Src/vl6180_api.c \
 Core/Src/vl6180_i2c.c \
 Core/Src/user_tasks.c \
-Core/Src/mpu6050.c
+Core/Src/mpu6050.c \
+Core/Src/pid.c
 
 # ASM sources
 ASM_SOURCES =  \
