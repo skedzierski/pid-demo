@@ -43,13 +43,13 @@ void SERVO_CalculateTimerSetting(Servo_HandleTypeDef *dev){
 
 void SERVO_CalculatePeriod(Servo_HandleTypeDef *dev, float pos){
     float setpoint = 0;
-    if(pos <= 0) pos = 0.0;
+    //if(pos <= 0) pos = 0.0; //TODO Uncomment
     // {
     //     setpoint = dev->zero_pos_period;
     //     dev->current_position = 0.0;
     //     dev->current_pulse = (uint16_t) setpoint;
     // }
-    else if(pos > 180.0) pos = 180.0;
+    //else if(pos > 180.0) pos = 180.0; //TODO Uncomment
     pos *= 10;
     setpoint = PERIOD_PER_DEG * pos;
     setpoint /= dev->pwm_step;

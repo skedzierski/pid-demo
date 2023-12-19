@@ -96,7 +96,7 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  SERVO_Init(&servo_dev, &htim3, 84e6, 200, 5000, TIM_CHANNEL_1);
+  SERVO_Init(&servo_dev, &htim3, 84e6, 100, 5000, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -115,18 +115,28 @@ int main(void)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
-    while(pos<180){
+    while(pos<90){
       SERVO_SetPosition(&servo_dev, pos);
       pos += 0.1;
       HAL_Delay(1);
     }
-    HAL_Delay(3000);
-    while(pos>0){
+    //HAL_Delay(3000);
+    while(pos>-90){
       SERVO_SetPosition(&servo_dev, pos);
       pos -= 0.1;
       HAL_Delay(1);
     }
-    HAL_Delay(3000);
+    //HAL_Delay(3000);
+
+    // SERVO_SetPosition(&servo_dev, -90);
+    // HAL_Delay(3000);
+    // SERVO_SetPosition(&servo_dev, 0);
+    // HAL_Delay(3000);
+    // SERVO_SetPosition(&servo_dev, 90);
+    // HAL_Delay(3000);
+    // SERVO_SetPosition(&servo_dev, 180);
+    // HAL_Delay(3000);
+
 
     test++;
     /* USER CODE END WHILE */
