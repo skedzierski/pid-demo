@@ -32,10 +32,10 @@ void demo_tof(void* args)
     xTaskNotifyWait(0xffffffff, 0, NULL, portMAX_DELAY);
     taskENTER_CRITICAL();
     VL6180_RangeGetMeasurement(dev, &data);
-    VL6180_ClearAllInterrupt(dev);
     m.distance = 3*data.range_mm;
-    printf("%s\r\n", VL6180_RangeGetStatusErrString(data.errorStatus));
+    m.time_stamp = xTaskGetTickCount();
     xQueueSend(*message_queue, &m, portMAX_DELAY);
+    VL6180_ClearAllInterrupt(dev);
     taskEXIT_CRITICAL();
     vTaskResume(taskh);
   }
@@ -68,6 +68,7 @@ void demo_acc(void* args)
     MPU6050_GetRotationXRAW(&gyro_x);
     m.vec2.acc_x = acc_x * acc_scale;
     m.vec2.gyro_x = gyro_x * gyro_scale;
+    m.time_stamp = xTaskGetTickCount();
     taskEXIT_CRITICAL();
     xQueueSend(*message_queue, &m, portMAX_DELAY);
     vTaskResume(taskh);
@@ -90,13 +91,13 @@ void simple_logger(void* args)
     if(message_buf.device == VL6180)
     {
       taskENTER_CRITICAL();
-      printf("distance: %ldmm\r\n", message_buf.distance);
+      printf("VL;%d;%d;0\r\n", message_buf.time_stamp, message_buf.distance);
       taskEXIT_CRITICAL();
     }
     else if(message_buf.device == MPU6050)
     {
       taskENTER_CRITICAL();
-      printf("acceleration x: %f mG rotation: %f [deg/s]\r\n", message_buf.vec2.acc_x, message_buf.vec2.gyro_x);
+      printf("MPU;%d;%f;%f\r\n", message_buf.time_stamp, message_buf.vec2.acc_x, message_buf.vec2.gyro_x);
       taskEXIT_CRITICAL();
     }
   }
