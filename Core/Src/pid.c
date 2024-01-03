@@ -8,6 +8,7 @@ static void array_rshift(PIDController_t* instance)
     {
         instance->set_point[i] = instance->set_point[i-1];
         instance->measured_set_point[i] = instance->measured_set_point[i-1];
+        instance->error_signal[i] = instance->error_signal[i-1];
     }
 }
 
