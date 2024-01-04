@@ -10,7 +10,7 @@
 
 #include "stm32f4xx_hal.h"
 
-#define PERIOD_PER_DEG 5.555556         //Angle and period are multiplied by 10
+#define PERIOD_PER_DEG 11.111111         //Angle and period are multiplied by 10
 
 typedef struct{
     TIM_HandleTypeDef *tim_handle;       /*HAL timer handler                               */
@@ -23,7 +23,7 @@ typedef struct{
     uint32_t zero_pos_period;            /*CCR register value for 0deg position            */
     float pwm_step;                      /*Pulse width step                                */  
     float current_position;              /*Set servo position                              */
-    uint16_t current_pulse;               /*CCR register value required for current_position*/
+    uint16_t current_pulse;              /*CCR register value required for current_position*/
 } Servo_HandleTypeDef;
 
 //TODO Change return type

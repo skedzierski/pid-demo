@@ -18,7 +18,7 @@ void SERVO_Init(Servo_HandleTypeDef *dev, TIM_HandleTypeDef *htim, uint32_t tim_
     dev->tim_handle->Instance->PSC = dev->prescaler;
     dev->tim_handle->Instance->ARR = dev->counter_period;
     dev->pwm_step = ((float)dev->pwm_period / (float)dev->counter_period);
-    dev->zero_pos_period = (10000/dev->pwm_step);
+    dev->zero_pos_period = (5000/dev->pwm_step);
     SERVO_SetPosition(dev, 90.0);
     //HAL_TIM_PWM_Init(dev->tim_handle);
     HAL_TIM_PWM_Start(dev->tim_handle, dev->tim_channel);
