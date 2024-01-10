@@ -17,13 +17,11 @@ static void get_error_signal(PIDController_t* instance)
     instance->error_signal[0] = instance->set_point[0] - instance->measured_set_point[0];
 }
 
-static float h = TIME_DELTA;
 static float get_difference(float f_of_x, float f_of_x_minus_h)
 {
     return (f_of_x_minus_h - f_of_x);
 }
 
-static float dt = TIME_DELTA;
 static float trapez(float* f, int len)
 {
     float integral = 0;
