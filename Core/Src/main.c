@@ -58,6 +58,13 @@ float gyro_x_scaled = 0;
 int16_t accel_x_raw = 0;
 float accel_scale = 0.0610352;
 float accel_x_scaled = 0;
+
+VL6180Dev_t vl6180_dev = 0x52;
+VL6180_RangeData_t data[100] = {0};
+int32_t avg;
+int status = 0;
+volatile uint8_t data_ready = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,14 +111,43 @@ int main(void)
   MX_TIM3_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET);
+  VL6180_WaitDeviceBooted(vl6180_dev);
+  VL6180_InitData(vl6180_dev);
+  VL6180_Prepare(vl6180_dev);
+  // VL6180_UpscaleSetScaling(vl6180_dev, 1);
+  // VL6180_RangeSetInterMeasPeriod(vl6180_dev, 1000);
+  // VL6180_SetupGPIO1(vl6180_dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
+  // VL6180_RangeConfigInterrupt(vl6180_dev, CONFIG_GPIO_INTERRUPT_NEW_SAMPLE_READY);
+  // VL6180_RangeStartContinuousMode(vl6180_dev);
+  // VL6180_RangeConfigInterrupt(vl6180_dev, CONFIG_GPIO_INTERRUPT_DISABLED);
+  //VL6180_FilterSetState(vl6180_dev, 0);
+  //VL6180_RangeIgnoreSetEnable(vl6180_dev, 0);
+  //VL6180_ClearAllInterrupt(vl6180_dev);
+  //VL6180_SetOffsetCalibrationData(vl6180_dev, 5);
+
+  //ST CODE
+  VL6180_RangeClearInterrupt(vl6180_dev);
+  //END ST CODE
+  for(int i = 0;i<100;i++){
+    VL6180_RangeStartSingleShot(vl6180_dev);   
+    VL6180_PollDelay(vl6180_dev);
+    while(VL6180_RangeGetMeasurementIfReady(vl6180_dev, &data[i]));
+  }
+  for(int i = 0;i<100;i++){
+    avg += data[i].range_mm;
+  }
+  avg /= 100;
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
+  //osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -119,12 +155,13 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-   
-    test = MPU6050_GetRotationXRAW(&gyro_x_raw);
-    gyro_x_scaled = (float)gyro_x_raw * gyro_scale;
+    while(!data_ready);
+    VL6180_RangeGetMeasurement(vl6180_dev, &data[0]);
+    //test = MPU6050_GetRotationXRAW(&gyro_x_raw);
+    //gyro_x_scaled = (float)gyro_x_raw * gyro_scale;
     //HAL_Delay(50);
-    test = MPU6050_GetAccelerationXRAW(&accel_x_raw);
-    accel_x_scaled = (float)accel_x_raw * accel_scale;
+    //test = MPU6050_GetAccelerationXRAW(&accel_x_raw);
+    //accel_x_scaled = (float)accel_x_raw * accel_scale;
     //HAL_Delay(50);
     //HAL_Delay(5000);
     /* USER CODE END WHILE */
@@ -180,13 +217,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-int _write(int file, char* data, int len)
-{
-  if(HAL_UART_Transmit(&huart6, data, len, 1000) == 0)
-    return len;
-  else
-    return -1;
-}
+// int _write(int file, char* data, int len)
+// {
+//   if(HAL_UART_Transmit(&huart6, data, len, 1000) == 0)
+//     return len;
+//   else
+//     return -1;
+// }
 /* USER CODE END 4 */
 
 /**

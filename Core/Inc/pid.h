@@ -2,7 +2,7 @@
 
 #include "stdint.h"
 
-#define PROCESS_SIGNAL_LEN 2
+#define PROCESS_SIGNAL_LEN 100
 
 /**
  * @def TIME_DELTA

@@ -13,10 +13,14 @@ static void array_rshift(PIDController_t* instance)
 
 static void get_error_signal(PIDController_t* instance)
 {
-    instance->error_signal[0] = instance->set_point[0] - instance->measured_set_point[0];
+    for(int i = 0; i < PROCESS_SIGNAL_LEN; i++)
+    {
+        instance->error_signal[i] = instance->set_point[i] - instance->measured_set_point[i];
+    }
+    
 }
 
-static float h = TIME_DELTA;
+//static float h = TIME_DELTA;
 static float get_difference(float f_of_x, float f_of_x_minus_h)
 {
     return (f_of_x_minus_h - f_of_x);
@@ -59,8 +63,10 @@ int PID_GetInstance(PIDController_t* instance, float P, float I, float D)
 
 float Adapter_map(Adapter_t* adapter, float value)
 {
-    float slope = (adapter->from_max - adapter->from_min) / (adapter->to_max - adapter->to_min);
-    return (value - adapter->to_min)*slope + adapter->to_min;
+    // float slope = (adapter->to_max - adapter->to_min) / (adapter->from_max - adapter->from_min);
+    // return (value - adapter->to_min)*slope + adapter->to_min;
+
+    return (value - adapter->from_min) * (adapter->to_max - adapter->to_min) / (adapter->from_max - adapter->from_min) + adapter->to_min;
 }
 
 #if PROCESS_SIGNAL_LEN < 2

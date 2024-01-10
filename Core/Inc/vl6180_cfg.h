@@ -86,7 +86,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @li 1 : Filter is supported and active by default
  * @li -1 : Filter is supported but is not active by default @a VL6180_FilterSetState() can turn it on and off at any time
  */
-#define VL6180_WRAP_AROUND_FILTER_SUPPORT   0
+#define VL6180_WRAP_AROUND_FILTER_SUPPORT   1
 
 /**
  * @def VL6180_EXTENDED_RANGE
@@ -95,7 +95,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Device that do not formally support extended ranging should only be used with a scaling factor of 1.
  * Correct operation with scaling factor other than 1 (>200mm ) is not granted by ST.
  */
-#define VL6180_EXTENDED_RANGE 1
+#define VL6180_EXTENDED_RANGE 0
 
 
 #endif
