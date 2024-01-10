@@ -1,6 +1,6 @@
 #include "tasks.h"
 #include "main.h"
-#include "vl6180_api.h"
+#include "vl53l0x_api.h"
 #include "mpu6050.h"
 #include "queue.h"
 #include "semphr.h"
@@ -11,32 +11,51 @@ extern I2C_HandleTypeDef hi2c1;
 extern TaskHandle_t taskh;
 void demo_tof(void* args)
 {
-  VL6180Dev_t dev = 0x52;
   QueueHandle_t* message_queue = args;
+  //
+	// VL53L0X initialisation stuff
+	//
+  uint32_t refSpadCount;
+  uint8_t isApertureSpads;
+  uint8_t VhvSettings;
+  uint8_t PhaseCal;
+  VL53L0X_RangingMeasurementData_t RangingData;
+  VL53L0X_Dev_t  vl53l0x_c; // center module
+  VL53L0X_DEV    Dev = &vl53l0x_c;
+  Dev->I2cHandle = &hi2c1;
+  Dev->I2cDevAddr = 0x52;
   taskENTER_CRITICAL();
-  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET);
-  VL6180_WaitDeviceBooted(dev);
-  VL6180_InitData(dev);
-  VL6180_Prepare(dev);
-  VL6180_UpscaleSetScaling(dev, 1);
-  VL6180_RangeSetInterMeasPeriod(dev, 1000);
-  VL6180_SetupGPIO1(dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
-  VL6180_RangeConfigInterrupt(dev, CONFIG_GPIO_INTERRUPT_NEW_SAMPLE_READY);
-  VL6180_RangeStartContinuousMode(dev);
+  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_RESET); // Disable XSHUT
+  HAL_Delay(20);
+  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET); // Enable XSHUT
+  HAL_Delay(20);
+
+  //
+  // VL53L0X init for Single Measurement
+  //
+
+  VL53L0X_WaitDeviceBooted( Dev );
+  VL53L0X_DataInit( Dev );
+  VL53L0X_StaticInit( Dev );
+  VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
+  VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
+  VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+  VL53L0X_StartMeasurement(Dev);
   taskEXIT_CRITICAL();
-  VL6180_RangeData_t data = {0};
+  
   measurment m;
   m.device = VL6180;
   while(1)
   {
     xTaskNotifyWait(0xffffffff, 0, NULL, portMAX_DELAY);
     taskENTER_CRITICAL();
-    VL6180_RangeGetMeasurement(dev, &data);
-    m.distance = 3*data.range_mm;
+    VL53L0X_GetRangingMeasurementData(Dev, &RangingData);
+    VL53L0X_ClearInterruptMask(Dev, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_NEW_SAMPLE_READY);
+    taskEXIT_CRITICAL();
+    m.distance = RangingData.RangeMilliMeter;
     m.time_stamp = xTaskGetTickCount();
     xQueueSend(*message_queue, &m, portMAX_DELAY);
-    VL6180_ClearAllInterrupt(dev);
-    taskEXIT_CRITICAL();
+
     vTaskResume(taskh);
   }
 }
@@ -91,13 +110,13 @@ void simple_logger(void* args)
     if(message_buf.device == VL6180)
     {
       taskENTER_CRITICAL();
-      printf("VL;%d;%d;0\r\n", message_buf.time_stamp, message_buf.distance);
+      printf("VL;%ld;%ld;0\r\n", message_buf.time_stamp, message_buf.distance);
       taskEXIT_CRITICAL();
     }
     else if(message_buf.device == MPU6050)
     {
       taskENTER_CRITICAL();
-      printf("MPU;%d;%f;%f\r\n", message_buf.time_stamp, message_buf.vec2.acc_x, message_buf.vec2.gyro_x);
+      printf("MPU;%ld;%f;%f\r\n", message_buf.time_stamp, message_buf.vec2.acc_x, message_buf.vec2.gyro_x);
       taskEXIT_CRITICAL();
     }
   }
