@@ -3,11 +3,12 @@
 #include "vl53l0x_api.h"
 
 #include "stm32f4xx_hal.h"
+#include "tasks.h"
 #include <string.h>
 
 #define I2C_TIME_OUT_BASE   10
 #define I2C_TIME_OUT_BYTE   1
-#define VL53L0X_OsDelay(...) HAL_Delay(2)
+#define VL53L0X_OsDelay(...) vTaskDelay(2)
 
 
 #ifndef HAL_I2C_MODULE_ENABLED

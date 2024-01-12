@@ -9,6 +9,10 @@
 volatile extern uint8_t new_sample_ready;
 extern I2C_HandleTypeDef hi2c1;
 extern TaskHandle_t taskh;
+
+// VL53L0X_Dev_t  vl53l0x_c; // center module
+// VL53L0X_DEV    Dev = &vl53l0x_c;
+// VL53L0X_RangingMeasurementData_t RangingData;
 void demo_tof(void* args)
 {
   QueueHandle_t* message_queue = args;
@@ -19,28 +23,23 @@ void demo_tof(void* args)
   uint8_t isApertureSpads;
   uint8_t VhvSettings;
   uint8_t PhaseCal;
-  VL53L0X_RangingMeasurementData_t RangingData;
-  VL53L0X_Dev_t  vl53l0x_c; // center module
-  VL53L0X_DEV    Dev = &vl53l0x_c;
+  volatile VL53L0X_Error Status = VL53L0X_ERROR_NONE;
+
   Dev->I2cHandle = &hi2c1;
   Dev->I2cDevAddr = 0x52;
-  taskENTER_CRITICAL();
-  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_RESET); // Disable XSHUT
-  HAL_Delay(20);
-  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET); // Enable XSHUT
-  HAL_Delay(20);
 
   //
   // VL53L0X init for Single Measurement
   //
-
-  VL53L0X_WaitDeviceBooted( Dev );
-  VL53L0X_DataInit( Dev );
-  VL53L0X_StaticInit( Dev );
-  VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
-  VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
-  VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
-  VL53L0X_StartMeasurement(Dev);
+  taskENTER_CRITICAL();
+  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET); // Enable XSHUT
+  Status += VL53L0X_DataInit( Dev );
+  Status += VL53L0X_StaticInit( Dev );
+  Status += VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
+  Status += VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
+  Status += VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_TIMED_RANGING);
+  Status += VL53L0X_SetInterMeasurementPeriodMilliSeconds(Dev, 1000);
+  Status += VL53L0X_StartMeasurement(Dev);
   taskEXIT_CRITICAL();
   
   measurment m;
@@ -49,8 +48,8 @@ void demo_tof(void* args)
   {
     xTaskNotifyWait(0xffffffff, 0, NULL, portMAX_DELAY);
     taskENTER_CRITICAL();
-    VL53L0X_GetRangingMeasurementData(Dev, &RangingData);
-    VL53L0X_ClearInterruptMask(Dev, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_NEW_SAMPLE_READY);
+    Status += VL53L0X_GetRangingMeasurementData(Dev, &RangingData);
+    Status += VL53L0X_ClearInterruptMask(Dev, 0);
     taskEXIT_CRITICAL();
     m.distance = RangingData.RangeMilliMeter;
     m.time_stamp = xTaskGetTickCount();

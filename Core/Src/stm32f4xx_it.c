@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "cmsis_os.h"
+#include "vl53l0x_api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +61,9 @@ extern TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN EV */
 extern TaskHandle_t tof_task_handle;
+extern VL53L0X_DEV    Dev;
+extern VL53L0X_RangingMeasurementData_t RangingData;
+extern uint8_t TofDataRead;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -166,9 +170,11 @@ void DebugMon_Handler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+    
+		TofDataRead = 1;
   //xTaskNotifyFromISR(tof_task_handle, 0, eNoAction, 0);
   /* USER CODE END EXTI9_5_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(VL6180_GPIO1_Pin);
+  HAL_GPIO_EXTI_IRQHandler(TOF_IRQ_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
