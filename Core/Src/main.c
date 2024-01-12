@@ -27,7 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
-#include "vl6180_api.h"
+#include "vl6180x_api.h"
 #include "mpu6050.h"
 /* USER CODE END Includes */
 
@@ -59,8 +59,8 @@ int16_t accel_x_raw = 0;
 float accel_scale = 0.0610352;
 float accel_x_scaled = 0;
 
-VL6180Dev_t vl6180_dev = 0x52;
-VL6180_RangeData_t data[100] = {0};
+VL6180xDev_t vl6180_dev = 0x52;
+VL6180x_RangeData_t data[100] = {0};
 int32_t avg;
 int status = 0;
 volatile uint8_t data_ready = 0;
@@ -113,9 +113,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET);
-  VL6180_WaitDeviceBooted(vl6180_dev);
-  VL6180_InitData(vl6180_dev);
-  VL6180_Prepare(vl6180_dev);
+  VL6180x_WaitDeviceBooted(vl6180_dev);
+  VL6180x_InitData(vl6180_dev);
+  VL6180x_Prepare(vl6180_dev);
   // VL6180_UpscaleSetScaling(vl6180_dev, 1);
   // VL6180_RangeSetInterMeasPeriod(vl6180_dev, 1000);
   // VL6180_SetupGPIO1(vl6180_dev, GPIOx_SELECT_GPIO_INTERRUPT_OUTPUT, INTR_POL_HIGH);
@@ -128,12 +128,12 @@ int main(void)
   //VL6180_SetOffsetCalibrationData(vl6180_dev, 5);
 
   //ST CODE
-  VL6180_RangeClearInterrupt(vl6180_dev);
+  VL6180x_RangeClearInterrupt(vl6180_dev);
   //END ST CODE
   for(int i = 0;i<100;i++){
-    VL6180_RangeStartSingleShot(vl6180_dev);   
-    VL6180_PollDelay(vl6180_dev);
-    while(VL6180_RangeGetMeasurementIfReady(vl6180_dev, &data[i]));
+    VL6180x_RangeStartSingleShot(vl6180_dev);   
+    VL6180x_PollDelay(vl6180_dev);
+    while(VL6180x_RangeGetMeasurementIfReady(vl6180_dev, &data[i]) == 0);
   }
   for(int i = 0;i<100;i++){
     avg += data[i].range_mm;
@@ -156,7 +156,7 @@ int main(void)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     while(!data_ready);
-    VL6180_RangeGetMeasurement(vl6180_dev, &data[0]);
+    VL6180x_RangeGetMeasurement(vl6180_dev, &data[0]);
     //test = MPU6050_GetRotationXRAW(&gyro_x_raw);
     //gyro_x_scaled = (float)gyro_x_raw * gyro_scale;
     //HAL_Delay(50);
