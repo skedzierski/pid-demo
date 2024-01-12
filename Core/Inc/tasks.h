@@ -14,6 +14,7 @@ typedef struct {
         } vec2;
         int32_t distance;
     };
+    uint32_t time_stamp;
 } measurment;
 
 void demo_tof(void* args);

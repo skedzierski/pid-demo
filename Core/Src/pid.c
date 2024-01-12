@@ -8,6 +8,7 @@ static void array_rshift(PIDController_t* instance)
     {
         instance->set_point[i] = instance->set_point[i-1];
         instance->measured_set_point[i] = instance->measured_set_point[i-1];
+        instance->error_signal[i] = instance->error_signal[i-1];
     }
 }
 
@@ -26,7 +27,6 @@ static float get_difference(float f_of_x, float f_of_x_minus_h)
     return (f_of_x_minus_h - f_of_x);
 }
 
-static float dt = TIME_DELTA;
 static float trapez(float* f, int len)
 {
     float integral = 0;
