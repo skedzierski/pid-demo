@@ -24,7 +24,7 @@ static void get_error_signal(PIDController_t* instance)
 //static float h = TIME_DELTA;
 static float get_difference(float f_of_x, float f_of_x_minus_h)
 {
-    return (f_of_x_minus_h - f_of_x);
+    return (f_of_x - f_of_x_minus_h);
 }
 
 static float trapez(float* f, int len)

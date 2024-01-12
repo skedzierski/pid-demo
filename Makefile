@@ -82,6 +82,7 @@ Core/Src/vl53l0x_api.c \
 Core/Src/vl53l0x_platform.c \
 Core/Src/vl53l0x_platform_log.c \
 Core/Src/mpu6050.c \
+Core/Src/servo.c \
 Core/Src/pid.c
 
 # ASM sources
