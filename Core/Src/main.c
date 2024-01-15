@@ -112,11 +112,18 @@ int main(void)
   MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  PIDController_t pid;
+  Adapter_t a;
+  PID_Init(&pid, 0, 0, 1);
+  Adapter_Init(&a, 100, 0, 90, -90);
+  float measured_signal[] = {75,   49,   53,   55,   30,   93,   89,   38,   54,   71,   15,   21,   32,   18,   77,   22,   14,   98,    6,   73,    5,   23,   44,   87,   27,   41,   60,   72,   59,   28};
+  float process_signal[sizeof(measured_signal)/sizeof(float)]  = {0};
+  int index = 0;
   while (1)
   {
     /* USER CODE END WHILE */
