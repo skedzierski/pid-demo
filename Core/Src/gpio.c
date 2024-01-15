@@ -57,7 +57,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PCPin PCPin */
   GPIO_InitStruct.Pin = BLUE_LED_Pin|GREEN_LED_Pin;
