@@ -67,6 +67,8 @@ float accel_scale = 0.0610352;
 float accel_x_scaled = 0;
 
 int32_t avg;
+int32_t mov_avg[3];
+int it = 0;
 int status = 0;
 volatile uint8_t data_ready = 0;
 
@@ -76,7 +78,7 @@ Servo_HandleTypeDef servo_dev;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
+//void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 int run_tests();
 
@@ -147,6 +149,7 @@ VL53L0X_WaitDeviceBooted( Dev );
     VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
 
     // Enable/Disable Sigma and Signal check
+    VL53L0X_SETDEVICESPECIFICPARAMETER(Dev, OscFrequencyMHz, 618660);
     VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
     VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
     VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, (FixPoint1616_t)(0.1*65536));
@@ -154,13 +157,18 @@ VL53L0X_WaitDeviceBooted( Dev );
     VL53L0X_SetMeasurementTimingBudgetMicroSeconds(Dev, 33000);
     VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, 18);
     VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
+    // VL53L0X_SetXTalkCompensationEnable(Dev, 1);
+    // VL53L0X_SetWrapAroundCheckEnable(Dev, 1);
+
 
   SERVO_Init(&servo_dev, &htim3, 84e6, 100, 10000, TIM_CHANNEL_1);
   SERVO_SetPosition(&servo_dev, 90); //Set center position
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  //osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  //osKernelInitialize();
+
+  /* Call init function for freertos objects (in freertos.c) */
   //MX_FREERTOS_Init();
 
   /* Start scheduler */
@@ -170,29 +178,39 @@ VL53L0X_WaitDeviceBooted( Dev );
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  for(int i=0;i<3;i++){
+      VL53L0X_PerformSingleRangingMeasurement(Dev, &RangingData);
+      if(RangingData.RangeMilliMeter > 600 || RangingData.RangeMilliMeter < 20){
+        i--;
+        continue;
+        mov_avg[i] = RangingData.RangeMilliMeter;
+      }
+  }
+ 
   PIDController_t pid;
-  PID_GetInstance(&pid, 13, 0, 50);
+  PID_GetInstance(&pid, 12, 0, 150);
   float new_control;
   float adapted;
 
   Adapter_t adp;
   adp.from_max = 10000;
   adp.from_min = -10000;
-  adp.to_max = 120.0;
-  adp.to_min = 60.0;
+  adp.to_max = 144.0;
+  adp.to_min = 36.0;
 
   VL53L0X_DeviceError err;
   char human_redable_erorr[1024];
   uint32_t delay = 0;
   while (1)
   {
-    
+
     VL53L0X_PerformSingleRangingMeasurement(Dev, &RangingData);
-    VL53L0X_GetDeviceErrorStatus(Dev, &err);
-    VL53L0X_GetDeviceErrorString(err, human_redable_erorr);
-    printf("%s\n\r", human_redable_erorr);
-    printf("%d\n\r", RangingData.RangeMilliMeter);
-    new_control = PID_GetNewControl(&pid, RangingData.RangeMilliMeter, 400);
+    avg = 0;
+    avg = RangingData.RangeMilliMeter;
+    //VL53L0X_GetDeviceErrorStatus(Dev, &err);
+    //VL53L0X_GetDeviceErrorString(err, human_redable_erorr);
+    printf("avg: %d\n\r", avg);
+    new_control = PID_GetNewControl(&pid, avg, 250);
     measurment_ready = 0;
     adapted = Adapter_map(&adp, new_control);
     if(adapted > adp.to_max)
@@ -200,7 +218,7 @@ VL53L0X_WaitDeviceBooted( Dev );
 
     if(adapted < adp.to_min)
         adapted = adp.to_min;
-    printf("co zwraca pid: %f, adapter shit: %f\n\r", new_control, adapted);
+    printf("pid: %f, adapter: %f\n\r", new_control, adapted);
     SERVO_SetPosition(&servo_dev, adapted);
     /* USER CODE END WHILE */
 

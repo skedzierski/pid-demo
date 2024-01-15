@@ -38,7 +38,6 @@ BUILD_DIR = build
 C_SOURCES =  \
 Core/Src/main.c \
 Core/Src/gpio.c \
-Core/Src/freertos.c \
 Core/Src/i2c.c \
 Core/Src/tim.c \
 Core/Src/usart.c \
@@ -83,7 +82,7 @@ Core/Src/vl53l0x_platform.c \
 Core/Src/vl53l0x_platform_log.c \
 Core/Src/mpu6050.c \
 Core/Src/servo.c \
-Core/Src/pid.c
+Core/Src/pid.c 
 
 # ASM sources
 ASM_SOURCES =  \
