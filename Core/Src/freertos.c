@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "queue.h"
 #include "semphr.h"
-#include "tasks.h"
+#include "application_tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

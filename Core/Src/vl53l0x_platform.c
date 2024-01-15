@@ -3,7 +3,7 @@
 #include "vl53l0x_api.h"
 
 #include "stm32f4xx_hal.h"
-#include "tasks.h"
+#include "application_tasks.h"
 #include <string.h>
 
 #define I2C_TIME_OUT_BASE   10
