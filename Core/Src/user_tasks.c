@@ -10,15 +10,15 @@ volatile extern uint8_t new_sample_ready;
 extern I2C_HandleTypeDef hi2c1;
 extern TaskHandle_t taskh;
 
-// VL53L0X_Dev_t  vl53l0x_c; // center module
-// VL53L0X_DEV    Dev = &vl53l0x_c;
-// VL53L0X_RangingMeasurementData_t RangingData;
 void demo_tof(void* args)
 {
   QueueHandle_t* message_queue = args;
   //
 	// VL53L0X initialisation stuff
 	//
+  VL53L0X_Dev_t  vl53l0x_c; // center module
+  VL53L0X_DEV    Dev = &vl53l0x_c;
+  VL53L0X_RangingMeasurementData_t RangingData;
   uint32_t refSpadCount;
   uint8_t isApertureSpads;
   uint8_t VhvSettings;
@@ -32,15 +32,25 @@ void demo_tof(void* args)
   // VL53L0X init for Single Measurement
   //
   taskENTER_CRITICAL();
-  HAL_GPIO_WritePin(VL6180_GPIO0_GPIO_Port, VL6180_GPIO0_Pin, GPIO_PIN_SET); // Enable XSHUT
-  Status += VL53L0X_DataInit( Dev );
-  Status += VL53L0X_StaticInit( Dev );
-  Status += VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
-  Status += VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
-  Status += VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_TIMED_RANGING);
-  Status += VL53L0X_SetInterMeasurementPeriodMilliSeconds(Dev, 1000);
-  Status += VL53L0X_StartMeasurement(Dev);
+  VL53L0X_WaitDeviceBooted(Dev);
+  VL53L0X_DataInit( Dev );
+  VL53L0X_StaticInit( Dev );
+  VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
+  VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
+  VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+
+  // Enable/Disable Sigma and Signal check
+  VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
+  VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
+  VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, (FixPoint1616_t)(0.1*65536));
+  VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, (FixPoint1616_t)(60*65536));
+  VL53L0X_SetMeasurementTimingBudgetMicroSeconds(Dev, 33000);
+  VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, 18);
+  VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
+  VL53L0X_SetGpioConfig(Dev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, VL53L0X_GPIOFUNCTIONALITY_NEW_MEASURE_READY, VL53L0X_INTERRUPTPOLARITY_HIGH);
+  VL53L0X_ClearInterruptMask(Dev, 0);
   taskEXIT_CRITICAL();
+  VL53L0X_StartMeasurement(Dev);
   
   measurment m;
   m.device = VL6180;
@@ -119,11 +129,4 @@ void simple_logger(void* args)
       taskEXIT_CRITICAL();
     }
   }
-}
-
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    signed char *pcTaskName )
-{
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-  while(1);
 }
