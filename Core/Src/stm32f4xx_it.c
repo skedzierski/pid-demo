@@ -25,6 +25,7 @@
 #include "stdio.h"
 #include "cmsis_os.h"
 #include "vl53l0x_api.h"
+#include "stream_buffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

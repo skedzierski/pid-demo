@@ -62,7 +62,13 @@ int Adapter_Init(Adapter_t* adapter, float source_max, float source_min, float d
 
 float Adapter_Map(Adapter_t* adapter, float value)
 {
-    return (value - adapter->from_min) * (adapter->to_max - adapter->to_min) / (adapter->from_max - adapter->from_min) + adapter->to_min;
+    float mapped = (value - adapter->from_min) * (adapter->to_max - adapter->to_min) / (adapter->from_max - adapter->from_min) + adapter->to_min;
+    if(mapped > adapter->to_max)
+        mapped = adapter->to_max;
+
+    if(mapped < adapter->to_min)
+        mapped = adapter -> to_min;
+    return mapped;
 }
 
 #if PROCESS_SIGNAL_LEN < 2

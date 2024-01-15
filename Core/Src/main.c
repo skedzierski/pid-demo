@@ -103,11 +103,10 @@ int main(void)
   MX_TIM3_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  
+  HAL_Delay(50);
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  HAL_Delay(50);
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 

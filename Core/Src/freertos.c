@@ -26,8 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "queue.h"
-#include "semphr.h"
+#include "stream_buffer.h"
 #include "application_tasks.h"
+#include "vl53l0x_api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +50,7 @@
 /* USER CODE BEGIN Variables */
   TaskHandle_t tof_task_handle, taskh;
   QueueHandle_t message_queue;
+  StreamBufferHandle_t isr_to_pid;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -103,7 +105,7 @@ void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+  isr_to_pid = xStreamBufferCreate(sizeof(VL53L0X_RangingMeasurementData_t), sizeof(VL53L0X_RangingMeasurementData_t));
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -127,8 +129,8 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  xTaskCreate(demo_tof, "vl6180x task", 1000, &message_queue, tskIDLE_PRIORITY + 2, &tof_task_handle);
-  xTaskCreate(demo_acc, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 2, NULL);
+  xTaskCreate(pid_task, "pid task", 1000, &message_queue, tskIDLE_PRIORITY + 20, &tof_task_handle);
+  xTaskCreate(demo_acc, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 10, NULL);
   xTaskCreate(simple_logger, "Logger", 1000, &message_queue, tskIDLE_PRIORITY + 1, &taskh);
   /* USER CODE END RTOS_THREADS */
 
