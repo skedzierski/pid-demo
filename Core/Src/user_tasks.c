@@ -37,7 +37,7 @@ void demo_tof(void* args)
   VL53L0X_StaticInit( Dev );
   VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
   VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
-  VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+  VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_TIMED_RANGING);
 
   // Enable/Disable Sigma and Signal check
   VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
@@ -47,7 +47,8 @@ void demo_tof(void* args)
   VL53L0X_SetMeasurementTimingBudgetMicroSeconds(Dev, 33000);
   VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, 18);
   VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
-  VL53L0X_SetGpioConfig(Dev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, VL53L0X_GPIOFUNCTIONALITY_NEW_MEASURE_READY, VL53L0X_INTERRUPTPOLARITY_HIGH);
+  VL53L0X_SetGpioConfig(Dev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_TIMED_RANGING, VL53L0X_GPIOFUNCTIONALITY_NEW_MEASURE_READY, VL53L0X_INTERRUPTPOLARITY_HIGH);
+  VL53L0X_SetInterMeasurementPeriodMilliSeconds(Dev, 1000);
   VL53L0X_ClearInterruptMask(Dev, 0);
   taskEXIT_CRITICAL();
   VL53L0X_StartMeasurement(Dev);
