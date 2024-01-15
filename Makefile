@@ -83,7 +83,8 @@ Core/Src/vl53l0x_platform.c \
 Core/Src/vl53l0x_platform_log.c \
 Core/Src/mpu6050.c \
 Core/Src/pid.c \
-Core/Src/application_tasks.c
+Core/Src/application_tasks.c \
+Core/Src/servo.c
 
 # ASM sources
 ASM_SOURCES =  \
