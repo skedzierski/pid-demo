@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2016, STMicroelectronics International N.V.
+ * Copyright ï¿½ 2016, STMicroelectronics International N.V.
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -48,18 +48,18 @@ extern "C"
 #   define VL53L0X_API
 #endif
 
-/** @defgroup VL53L0X_cut11_group VL53L0X cut1.1 Function Definition
- *  @brief    VL53L0X cut1.1 Function Definition
+/** @defgroup VL53L0X_cut11_group eVL53L0X cut1.1 Function Definition
+ *  @brief    eVL53L0X cut1.1 Function Definition
  *  @{
  */
 
-/** @defgroup VL53L0X_general_group VL53L0X General Functions
+/** @defgroup VL53L0X_general_group eVL53L0X General Functions
  *  @brief    General functions and definitions
  *  @{
  */
 
 /**
- * @brief Return the VL53L0X PAL Implementation Version
+ * @brief Return the eVL53L0X PAL Implementation Version
  *
  * @note This function doesn't access to the device
  *
@@ -354,8 +354,8 @@ VL53L0X_Error VL53L0X_GetTotalSignalRate(VL53L0X_DEV Dev,
 
 /** @} VL53L0X_general_group */
 
-/** @defgroup VL53L0X_init_group VL53L0X Init Functions
- *  @brief    VL53L0X Init Functions
+/** @defgroup VL53L0X_init_group eVL53L0X Init Functions
+ *  @brief    eVL53L0X Init Functions
  *  @{
  */
 
@@ -486,7 +486,7 @@ VL53L0X_API VL53L0X_Error VL53L0X_ResetDevice(VL53L0X_DEV Dev);
 
 /** @} VL53L0X_init_group */
 
-/** @defgroup VL53L0X_parameters_group VL53L0X Parameters Functions
+/** @defgroup VL53L0X_parameters_group eVL53L0X Parameters Functions
  *  @brief    Functions used to prepare and setup the device
  *  @{
  */
@@ -1219,7 +1219,7 @@ VL53L0X_API VL53L0X_Error VL53L0X_GetWrapAroundCheckEnable(VL53L0X_DEV Dev,
 
 /** @} VL53L0X_parameters_group */
 
-/** @defgroup VL53L0X_measurement_group VL53L0X Measurement Functions
+/** @defgroup VL53L0X_measurement_group eVL53L0X Measurement Functions
  *  @brief    Functions used for the measurements
  *  @{
  */
@@ -1596,7 +1596,7 @@ VL53L0X_API VL53L0X_Error VL53L0X_GetMaxNumberOfROIZones(VL53L0X_DEV Dev,
 
 /** @} VL53L0X_measurement_group */
 
-/** @defgroup VL53L0X_interrupt_group VL53L0X Interrupt Functions
+/** @defgroup VL53L0X_interrupt_group eVL53L0X Interrupt Functions
  *  @brief    Functions used for interrupt managements
  *  @{
  */
@@ -1773,7 +1773,7 @@ VL53L0X_API VL53L0X_Error VL53L0X_EnableInterruptMask(VL53L0X_DEV Dev,
 
 /** @} VL53L0X_interrupt_group */
 
-/** @defgroup VL53L0X_SPADfunctions_group VL53L0X SPAD Functions
+/** @defgroup VL53L0X_SPADfunctions_group eVL53L0X SPAD Functions
  *  @brief    Functions used for SPAD managements
  *  @{
  */

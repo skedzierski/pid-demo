@@ -130,7 +130,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   xTaskCreate(pid_task, "pid task", 1000, &message_queue, tskIDLE_PRIORITY + 20, &tof_task_handle);
-  xTaskCreate(demo_acc, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 10, NULL);
+  //xTaskCreate(demo_acc, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 10, NULL);
   xTaskCreate(simple_logger, "Logger", 1000, &message_queue, tskIDLE_PRIORITY + 1, &taskh);
   /* USER CODE END RTOS_THREADS */
 

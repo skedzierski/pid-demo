@@ -1,3 +1,24 @@
+/*
+ *  Created on: 08.10.2018
+ *  	License: MIT
+ *      Author: Mateusz Salamon
+ *      Based on:
+ *      	 - MPU-6000 and MPU-6050 Product Specification Revision 3.4
+ *      	 - MPU-6000 and MPU-6050 Register Map and Descriptions Revision 4.2
+ *      	 - i2cdevlib by Jeff Rowberg on MIT license
+ *      	 - SparkFun MPU-9250 Digital Motion Processor (DMP) Arduino Library on MIT License
+ *
+ *		www.msalamon.pl
+ *		mateusz@msalamon.pl
+ *
+ *	Website: https://msalamon.pl/6-stopni-swobody-z-mpu6050-na-stm32/
+ *	GitHub: https://github.com/lamik/MPU6050_STM32_HAL
+ */
+
+/*
+ *      Modified by: Karol Michalski
+ */
+
 #ifndef MPU6050_REGMAP_H_
 #define MPU6050_REGMAP_H_
 
@@ -11,10 +32,17 @@
 #define MPU6050_RA_SELF_TEST_Y      0x0E
 #define MPU6050_RA_SELF_TEST_Z      0x0F
 #define MPU6050_RA_SELF_TEST_A      0x10
+#define MPU6050_RA_GYRO_XOFFSET_H   0x13
+#define MPU6050_RA_GYRO_XOFFSET_L   0x14
+#define MPU6050_RA_GYRO_YOFFSET_H   0x15
+#define MPU6050_RA_GYRO_YOFFSET_L   0x16
+#define MPU6050_RA_GYRO_ZOFFSET_H   0x17
+#define MPU6050_RA_GYRO_ZOFFSET_L   0x18
 #define MPU6050_RA_SMPLRT_DIV       0x19
 #define MPU6050_RA_CONFIG           0x1A
 #define MPU6050_RA_GYRO_CONFIG      0x1B
 #define MPU6050_RA_ACCEL_CONFIG     0x1C
+#define MPU6050_RA_ACCEL_CONFIG_2   0x1D
 // Not in documentation
 #define MPU6050_RA_FF_THR           0x1D
 #define MPU6050_RA_FF_DUR           0x1E
@@ -187,6 +215,17 @@
 #define MPU6050_ACCEL_FS_8          0x02
 #define MPU6050_ACCEL_FS_16         0x03
 
+//	Register 28 � Accelerometer Configuration
+//	ACCEL_CONFIG_2
+
+#define MPU6050_A_DLPF_BW_460         0x00
+#define MPU6050_A_DLPF_BW_184         0x01
+#define MPU6050_A_DLPF_BW_92          0x02
+#define MPU6050_A_DLPF_BW_41          0x03
+#define MPU6050_A_DLPF_BW_20          0x04
+#define MPU6050_A_DLPF_BW_10          0x05
+#define MPU6050_A_DLPF_BW_5           0x06
+
 //
 //
 //
@@ -294,15 +333,15 @@
 //	INT_PIN_CFG
 //
 #define MPU6050_INTCFG_INT_LEVEL_BIT        7
-#define MPU6050_INTCFG_INT_OPEN_BIT         6
+#define MPU6050_INTCFG_INT_PINMODE_BIT      6
 #define MPU6050_INTCFG_LATCH_INT_EN_BIT     5
 #define MPU6050_INTCFG_INT_RD_CLEAR_BIT     4
 #define MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT  3
 #define MPU6050_INTCFG_FSYNC_INT_EN_BIT     2
 #define MPU6050_INTCFG_I2C_BYPASS_EN_BIT    1
 
-#define MPU6050_INTMODE_ACTIVEHIGH  0x00
-#define MPU6050_INTMODE_ACTIVELOW   0x01
+#define MPU6050_INTLVL_ACTIVEHIGH  0x00
+#define MPU6050_INTLVL_ACTIVELOW   0x01
 
 #define MPU6050_INTDRV_PUSHPULL     0x00
 #define MPU6050_INTDRV_OPENDRAIN    0x01
@@ -317,6 +356,12 @@
 //	Register 56 � Interrupt Enable
 //	INT_ENABLE
 //
+
+#define MPU6050_INTEN_RAWREADY_BIT    0
+
+#define MPU6050_INTRAWREADY_ENABLE    0x01
+#define MPU6050_INTRAWREADY_DISABLE   0x00
+
 //	Register 58 � Interrupt Status
 //	INT_STATUS
 //

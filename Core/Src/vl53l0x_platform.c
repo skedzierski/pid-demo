@@ -5,11 +5,19 @@
 #include "stm32f4xx_hal.h"
 #include "application_tasks.h"
 #include <string.h>
+#include "tim.h"
 
 #define I2C_TIME_OUT_BASE   10
 #define I2C_TIME_OUT_BYTE   1
-#define VL53L0X_OsDelay(...) vTaskDelay(2)
+//#define VL53L0X_OsDelay(...) vTaskDelay(2)
+#define VL53L0X_OsDelay(...) my_delay()
 
+void my_delay()
+{
+    int tim_value = htim5.Instance->CNT;
+
+    while(htim5.Instance->CNT - tim_value < 2000);
+}
 
 #ifndef HAL_I2C_MODULE_ENABLED
 #warning "HAL I2C module must be enable "

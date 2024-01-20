@@ -1,8 +1,10 @@
+#pragma once
+
 #include "cmsis_os.h"
 
 typedef enum {
-    MPU6050,
-    VL6180
+    eMPU6050,
+    eVL53L0X
 } source;
 
 typedef struct {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2016, STMicroelectronics International N.V.
+ * Copyright ï¿½ 2016, STMicroelectronics International N.V.
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -329,7 +329,7 @@ VL53L0X_Error VL53L0X_SetGroupParamHold(VL53L0X_DEV Dev, uint8_t GroupParamHold)
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -342,7 +342,7 @@ VL53L0X_Error VL53L0X_GetUpperLimitMilliMeter(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -782,7 +782,7 @@ VL53L0X_Error VL53L0X_WaitDeviceBooted(VL53L0X_DEV Dev)
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -1034,7 +1034,7 @@ VL53L0X_Error VL53L0X_SetHistogramMode(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -1047,7 +1047,7 @@ VL53L0X_Error VL53L0X_GetHistogramMode(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -2140,7 +2140,7 @@ VL53L0X_Error VL53L0X_PerformSingleHistogramMeasurement(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -2169,7 +2169,7 @@ VL53L0X_Error VL53L0X_PerformXTalkMeasurement(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented on VL53L0X */
+	/* not implemented on eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -2435,7 +2435,7 @@ VL53L0X_Error VL53L0X_WaitDeviceReadyForNewMeasurement(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented for VL53L0X */
+	/* not implemented for eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;
@@ -3016,7 +3016,7 @@ VL53L0X_Error VL53L0X_EnableInterruptMask(VL53L0X_DEV Dev,
 
 	LOG_FUNCTION_START("");
 
-	/* not implemented for VL53L0X */
+	/* not implemented for eVL53L0X */
 
 	LOG_FUNCTION_END(Status);
 	return Status;

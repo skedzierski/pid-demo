@@ -57,13 +57,21 @@ float gyro_x_scaled = 0;
 int16_t accel_x_raw = 0;
 float accel_scale = 0.0610352;
 float accel_x_scaled = 0;
+
+extern VL53L0X_Error Status;
+
+extern VL53L0X_Dev_t  vl53l0x_c; // center module
+extern VL53L0X_DEV    Dev;
+extern  uint32_t refSpadCount;
+extern  uint8_t isApertureSpads;
+extern  uint8_t VhvSettings;
+extern  uint8_t PhaseCal;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-int run_tests();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -102,12 +110,43 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM3_Init();
   MX_USART6_UART_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start(&htim5);
   HAL_Delay(50);
+
+  HAL_NVIC_DisableIRQ(TOF_IRQ_EXTI_IRQn);
+  HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_RESET); // Enable XSHUT
+  HAL_Delay(20);
+  HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_SET); // Enable XSHUT
+  HAL_Delay(20);
+
+  Dev->I2cHandle = &hi2c1;
+  Dev->I2cDevAddr = 0x52;
+  Status = VL53L0X_DataInit( Dev );
+  Status = VL53L0X_StaticInit( Dev );
+  Status = VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
+  Status = VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
+  Status = VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
+
+  // Enable/Disable Sigma and Signal check
+  Status = VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
+  Status = VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
+  Status = VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, (FixPoint1616_t)(0.1*65536));
+  Status = VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, (FixPoint1616_t)(60*65536));
+  Status = VL53L0X_SetMeasurementTimingBudgetMicroSeconds(Dev, 33000);
+  Status = VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, 18);
+  Status = VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
+  //Status = VL53L0X_SetGpioConfig(Dev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, VL53L0X_GPIOFUNCTIONALITY_NEW_MEASURE_READY, VL53L0X_INTERRUPTPOLARITY_HIGH);
+  //Status = VL53L0X_SetInterMeasurementPeriodMilliSeconds(Dev, 1000);
+  Status = VL53L0X_ClearInterruptMask(Dev, 0);
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 
   /* Start scheduler */

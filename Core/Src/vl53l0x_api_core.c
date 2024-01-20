@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2016, STMicroelectronics International N.V.
+ * Copyright ï¿½ 2016, STMicroelectronics International N.V.
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -1925,10 +1925,10 @@ VL53L0X_Error VL53L0X_get_pal_range_status(VL53L0X_DEV Dev,
 
 
 	/*
-	 * VL53L0X has a good ranging when the value of the
+	 * eVL53L0X has a good ranging when the value of the
 	 * DeviceRangeStatus = 11. This function will replace the value 0 with
 	 * the value 11 in the DeviceRangeStatus.
-	 * In addition, the SigmaEstimator is not included in the VL53L0X
+	 * In addition, the SigmaEstimator is not included in the eVL53L0X
 	 * DeviceRangeStatus, this will be added in the PalRangeStatus.
 	 */
 

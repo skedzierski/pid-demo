@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2016, STMicroelectronics International N.V.
+ * Copyright ï¿½ 2016, STMicroelectronics International N.V.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * @file VL53L0X_def.h
  *
- * @brief Type definitions for VL53L0X API.
+ * @brief Type definitions for eVL53L0X API.
  *
  */
 
@@ -42,8 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-/** @defgroup VL53L0X_globaldefine_group VL53L0X Defines
- *	@brief	  VL53L0X Defines
+/** @defgroup VL53L0X_globaldefine_group eVL53L0X Defines
+ *	@brief	  eVL53L0X Defines
  *	@{
  */
 
@@ -57,13 +57,13 @@ extern "C" {
 /** PAL SPECIFICATION sub version */
 #define VL53L0X10_SPECIFICATION_VER_REVISION 1440
 
-/** VL53L0X PAL IMPLEMENTATION major version */
+/** eVL53L0X PAL IMPLEMENTATION major version */
 #define VL53L0X10_IMPLEMENTATION_VER_MAJOR	1
-/** VL53L0X PAL IMPLEMENTATION minor version */
+/** eVL53L0X PAL IMPLEMENTATION minor version */
 #define VL53L0X10_IMPLEMENTATION_VER_MINOR	0
-/** VL53L0X PAL IMPLEMENTATION sub version */
+/** eVL53L0X PAL IMPLEMENTATION sub version */
 #define VL53L0X10_IMPLEMENTATION_VER_SUB		9
-/** VL53L0X PAL IMPLEMENTATION sub version */
+/** eVL53L0X PAL IMPLEMENTATION sub version */
 #define VL53L0X10_IMPLEMENTATION_VER_REVISION	3673
 
 /** PAL SPECIFICATION major version */
@@ -75,13 +75,13 @@ extern "C" {
 /** PAL SPECIFICATION sub version */
 #define VL53L0X_SPECIFICATION_VER_REVISION 1440
 
-/** VL53L0X PAL IMPLEMENTATION major version */
+/** eVL53L0X PAL IMPLEMENTATION major version */
 #define VL53L0X_IMPLEMENTATION_VER_MAJOR	  1
-/** VL53L0X PAL IMPLEMENTATION minor version */
+/** eVL53L0X PAL IMPLEMENTATION minor version */
 #define VL53L0X_IMPLEMENTATION_VER_MINOR	  0
-/** VL53L0X PAL IMPLEMENTATION sub version */
+/** eVL53L0X PAL IMPLEMENTATION sub version */
 #define VL53L0X_IMPLEMENTATION_VER_SUB	  4
-/** VL53L0X PAL IMPLEMENTATION sub version */
+/** eVL53L0X PAL IMPLEMENTATION sub version */
 #define VL53L0X_IMPLEMENTATION_VER_REVISION	  4960
 #define VL53L0X_DEFAULT_MAX_LOOP 2000
 #define VL53L0X_MAX_STRING_LENGTH 32
@@ -111,11 +111,11 @@ typedef struct {
 	char Name[VL53L0X_MAX_STRING_LENGTH];
 		/*!< Name of the Device e.g. Left_Distance */
 	char Type[VL53L0X_MAX_STRING_LENGTH];
-		/*!< Type of the Device e.g VL53L0X */
+		/*!< Type of the Device e.g eVL53L0X */
 	char ProductId[VL53L0X_MAX_STRING_LENGTH];
 		/*!< Product Identifier String	*/
 	uint8_t ProductType;
-		/*!< Product Type, VL53L0X = 1, VL53L1 = 2 */
+		/*!< Product Type, eVL53L0X = 1, VL53L1 = 2 */
 	uint8_t ProductRevisionMajor;
 		/*!< Product revision major */
 	uint8_t ProductRevisionMinor;
@@ -453,7 +453,7 @@ typedef struct {
 /**
  * @struct VL53L0X_DevData_t
  *
- * @brief VL53L0X PAL device ST private data structure \n
+ * @brief eVL53L0X PAL device ST private data structure \n
  * End user should never access any of these field directly
  *
  * These must never access directly but only via macro

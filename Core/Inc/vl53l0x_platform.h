@@ -51,8 +51,8 @@ extern "C" {
  */
  
 /**
- * @defgroup VL53L0X_platform_group VL53L0X Platform Functions
- * @brief    VL53L0X Platform Functions
+ * @defgroup VL53L0X_platform_group eVL53L0X Platform Functions
+ * @brief    eVL53L0X Platform Functions
  *  @{
  */
 
