@@ -19,7 +19,5 @@ typedef struct {
     uint32_t time_stamp;
 } measurment;
 
-void demo_tof(void* args);
-void demo_acc(void* args);
-void pid_task(void* args);
+void mediator_task(void* args);
 void simple_logger(void* args);

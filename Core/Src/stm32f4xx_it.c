@@ -62,6 +62,7 @@ extern TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN EV */
 extern TaskHandle_t tof_task_handle;
+extern TaskHandle_t mpu_task_handle;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -168,7 +169,7 @@ void DebugMon_Handler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
-  xTaskNotifyFromISR(tof_task_handle, 0, eNoAction, 0);
+  //xTaskNotifyFromISR(tof_task_handle, 0, eNoAction, 0);
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(TOF_IRQ_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
@@ -195,7 +196,7 @@ void TIM2_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-
+  //xTaskNotifyFromISR(mpu_task_handle, 0, eNoAction, 0);
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */

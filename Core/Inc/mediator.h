@@ -1,35 +1,43 @@
 #pragma once
-#include "application_tasks.h"
-
+#include "FreeRTOS.h"
 #include "mpu6050.h"
 #include "vl53l0x_api.h"
+#include "queue.h"
+#include "pid.h"
+#include "servo.h"
 
 typedef struct TOF* TOF;
 typedef struct MPU6050* MPU6050;
 
+typedef enum
+{
+    eMPU,
+    eTOF,
+    eSERVO,
+    ePID
+} Component;
+
 typedef struct
 {
-    TOF tof;
+    VL53L0X_DEV tof;
     MPU6050 mpu;
+    PIDController_t* pid;
+    Adapter_t* adapter;
+    Servo_HandleTypeDef* servo;
+    VL53L0X_RangingMeasurementData_t data;
     
-} Mediator_t;
+} Mediator;
 
-typedef Mediator_t* Mediator;
-struct MPU6050
+void Mediator_Init(Mediator* m, MPU6050_HandleTypeDef* mpu6050_dev, VL53L0X_DEV tof_dev);
+void Mediator_BalanceBallAt(Mediator* m, uint16_t pos);
+
+typedef struct
 {
     Mediator m;
-    MPU6050_HandleTypeDef dev;
-};
+} MediatorBuilder;
 
-void MPU_Init(MPU6050 mpu, Mediator m, MPU6050_HandleTypeDef dev);
-
-struct TOF
-{
-    Mediator m;
-    VL53L0X_DEV    Dev;
-};
-
-void TOF_Init(TOF t, Mediator m, VL53L0X_DEV dev);
-
-void Mediator_notify(Mediator m, source sos);
-
+void MediatorBuilder_AddPID(MediatorBuilder* builder, PIDController_t* pid);
+void MediatorBuilder_AddServo(MediatorBuilder* builder, Servo_HandleTypeDef* servo);
+void MediatorBuilder_AddTOF(MediatorBuilder* builder, VL53L0X_DEV tof);
+void MediatorBuilder_AddAdapter(MediatorBuilder* builder, Adapter_t* adpt);
+Mediator MediatorBuilder_GetMediator(MediatorBuilder* builder);

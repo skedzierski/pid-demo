@@ -1,31 +1,37 @@
 #include "mediator.h"
 
-void Mediator_notify(Mediator m, source sos)
+
+void Mediator_BalanceBallAt(Mediator* m, uint16_t pos)
 {
-    switch(sos)
-    {
-        case eMPU6050:
-
-        break;
-
-        case eVL53L0X:
-
-        break;
-    
-        default:
-
-        break;
-    }
+    float control = 0;
+    float setting_for_servo = 0;
+    VL53L0X_PerformSingleRangingMeasurement(m->tof, &m->data);
+    control = PID_GetNewControl(m->pid, m->data.RangeMilliMeter, pos);
+    setting_for_servo = Adapter_Map(m->adapter, control);
+    SERVO_SetPosition(m->servo, setting_for_servo);
 }
 
-void MPU_Init(MPU6050 mpu, Mediator m, MPU6050_HandleTypeDef dev)
+void MediatorBuilder_AddPID(MediatorBuilder* builder, PIDController_t* pid)
 {
-    mpu->dev = dev;
-    mpu->m = m;
+    builder->m.pid = pid;
 }
 
-void TOF_Init(TOF t, Mediator m, VL53L0X_DEV dev)
+void MediatorBuilder_AddServo(MediatorBuilder* builder, Servo_HandleTypeDef* servo)
 {
-    t->Dev = dev;
-    t->m = m;
+    builder->m.servo = servo;
+}
+
+void MediatorBuilder_AddTOF(MediatorBuilder* builder, VL53L0X_DEV tof)
+{
+    builder->m.tof = tof;
+}
+
+void MediatorBuilder_AddAdapter(MediatorBuilder* builder, Adapter_t* adpt)
+{
+    builder->m.adapter = adpt;
+}
+
+Mediator MediatorBuilder_GetMediator(MediatorBuilder* builder)
+{
+    return builder->m;
 }
