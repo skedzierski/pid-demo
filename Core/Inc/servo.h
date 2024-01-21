@@ -26,10 +26,8 @@ typedef struct{
     uint16_t current_pulse;              /*CCR register value required for current_position*/
 } Servo_HandleTypeDef;
 
-//TODO Change return type
 void SERVO_Init(Servo_HandleTypeDef *dev, TIM_HandleTypeDef *htim, uint32_t tim_base_clock, uint32_t pwm_frequency, uint32_t pwm_period, uint32_t tim_channel);
 void SERVO_CalculateTimerSetting(Servo_HandleTypeDef *dev);
 void SERVO_SetPosition(Servo_HandleTypeDef *dev, float pos);
-void SERVO_WritePosition(Servo_HandleTypeDef *dev); //TODO Change name
 
 #endif

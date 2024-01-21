@@ -188,7 +188,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 int _write(int file, char* data, int len)
 {
-  if(HAL_UART_Transmit(&huart6, data, len, 1000) == 0)
+  if(HAL_UART_Transmit(&huart6, (uint8_t*)data, len, 1000) == 0)
     return len;
   else
     return -1;

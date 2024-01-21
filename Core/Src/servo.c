@@ -27,12 +27,10 @@ void SERVO_Init(Servo_HandleTypeDef *dev, TIM_HandleTypeDef *htim, uint32_t tim_
 void SERVO_CalculateTimerSetting(Servo_HandleTypeDef *dev){
     uint16_t i = 65535;
     uint16_t temp = 0;
-    uint8_t found = 0;
     for(i=65535;i>0;i--){
         if((dev->tim_base_clock % i) == 0){
             temp = dev->tim_base_clock / i;
             if((temp % dev->pwm_frequency) == 0){
-                found = 1; //TODO Do something with found var
                 break;
             }
         }
@@ -43,13 +41,6 @@ void SERVO_CalculateTimerSetting(Servo_HandleTypeDef *dev){
 
 void SERVO_CalculatePeriod(Servo_HandleTypeDef *dev, float pos){
     float setpoint = 0;
-    //if(pos <= 0) pos = 0.0; //TODO Uncomment
-    // {
-    //     setpoint = dev->zero_pos_period;
-    //     dev->current_position = 0.0;
-    //     dev->current_pulse = (uint16_t) setpoint;
-    // }
-    //else if(pos > 180.0) pos = 180.0; //TODO Uncomment
     pos *= 10;
     setpoint = PERIOD_PER_DEG * pos;
     setpoint /= dev->pwm_step;
@@ -58,7 +49,7 @@ void SERVO_CalculatePeriod(Servo_HandleTypeDef *dev, float pos){
     dev->current_position = pos;
 }
 
-void SERVO_WritePosition(Servo_HandleTypeDef *dev){
+static void SERVO_WritePosition(Servo_HandleTypeDef *dev){
     switch (dev->tim_channel)
     {
     case TIM_CHANNEL_1:
@@ -74,12 +65,11 @@ void SERVO_WritePosition(Servo_HandleTypeDef *dev){
         dev->tim_handle->Instance->CCR4 = dev->current_pulse;
         break;
     default:
-        //return SERVO_ARG_ERR; //TODO Implement returns
         break;
     }
 }
 
 void SERVO_SetPosition(Servo_HandleTypeDef *dev, float pos){
     SERVO_CalculatePeriod(dev, pos);
-    SERVO_WritePosition(dev); //TODO Implement returns
+    SERVO_WritePosition(dev);
 }

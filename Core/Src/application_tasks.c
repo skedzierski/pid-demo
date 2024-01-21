@@ -10,7 +10,6 @@
 #include "stream_buffer.h"
 #include "mediator.h"
 
-//volatile extern uint8_t new_sample_ready;
 extern I2C_HandleTypeDef hi2c1;
 extern TaskHandle_t taskh;
 
@@ -58,6 +57,12 @@ void mediator_task(void* args)
     Status = VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
     Status = VL53L0X_ClearInterruptMask(Dev, 0);
     //TOF Init End
+
+    if (Status != 0)
+    {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+        while(1);
+    }
 
     PID_Init(&pid, 13, 0, 100);
 
