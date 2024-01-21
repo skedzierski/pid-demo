@@ -36,6 +36,7 @@ typedef struct
     Mediator m;
 } MediatorBuilder;
 
+uint16_t Mediator_GetRange(Mediator* m);
 void MediatorBuilder_AddPID(MediatorBuilder* builder, PIDController_t* pid);
 void MediatorBuilder_AddServo(MediatorBuilder* builder, Servo_HandleTypeDef* servo);
 void MediatorBuilder_AddTOF(MediatorBuilder* builder, VL53L0X_DEV tof);

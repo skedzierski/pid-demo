@@ -11,6 +11,11 @@ void Mediator_BalanceBallAt(Mediator* m, uint16_t pos)
     SERVO_SetPosition(m->servo, setting_for_servo);
 }
 
+uint16_t Mediator_GetRange(Mediator* m)
+{
+    return m->data.RangeMilliMeter;
+}
+
 void MediatorBuilder_AddPID(MediatorBuilder* builder, PIDController_t* pid)
 {
     builder->m.pid = pid;

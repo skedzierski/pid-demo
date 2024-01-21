@@ -25,6 +25,7 @@ void mediator_task(void* args)
     uint8_t VhvSettings;
     uint8_t PhaseCal;
     volatile VL53L0X_Error Status = VL53L0X_ERROR_NONE;
+    QueueHandle_t *message_queue = (QueueHandle_t*)args;
 
     PIDController_t pid;
 
@@ -68,17 +69,21 @@ void mediator_task(void* args)
     MediatorBuilder_AddTOF(&builder, Dev);
     MediatorBuilder_AddAdapter(&builder, &adp);
     Mediator m = MediatorBuilder_GetMediator(&builder);
-
+    measurment meas;
+    meas.device = eVL53L0X;
     while(1)
     {
         Mediator_BalanceBallAt(&m, 250);
+        meas.distance = Mediator_GetRange(&m);
+        xQueueSend(*message_queue, &meas, portMAX_DELAY);
+        vTaskResume(taskh);
     }
 }
 
 void mpu_task(void *args)
 {
     MPU6050_HandleTypeDef mpu6050_dev;
-    MPU6050_StatusTypeDef status = 0;
+    volatile MPU6050_StatusTypeDef status = 0; //TODO delete volatile
     float gyro_scale, acc_scale;
     int16_t gyro_x_offset, gyro_y_offset, gyro_z_offset;
     int16_t acc_x, gyro_x;
@@ -134,110 +139,9 @@ void mpu_task(void *args)
 
         xQueueSend(*message_queue, &m, portMAX_DELAY);
         vTaskResume(taskh);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        //vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
-
-// void servo_task(void *args)
-// {
-//     Servo_HandleTypeDef servo_dev;
-//     float pos = 90.f;
-//     taskENTER_CRITICAL();
-//     SERVO_Init(&servo_dev, &htim3, 84e6, 100, 10000, TIM_CHANNEL_1);
-//     SERVO_SetPosition(&servo_dev, pos);
-//     taskEXIT_CRITICAL();
-
-//     while (1)
-//     {
-//         xTaskNotifyWait();
-//         SERVO_SetPosition(&servo_dev, pos);
-//     }
-// }
-
-// void tof_task(void *args)
-// {
-//     VL53L0X_Dev_t vl53l0x_c; // center module
-//     VL53L0X_DEV Dev = &vl53l0x_c;
-//     uint32_t refSpadCount;
-//     uint8_t isApertureSpads;
-//     uint8_t VhvSettings;
-//     uint8_t PhaseCal;
-//     volatile VL53L0X_Error Status = VL53L0X_ERROR_NONE;
-//     Mediator* m = (Mediator*)args;
-//     HAL_NVIC_DisableIRQ(TOF_IRQ_EXTI_IRQn);
-//     HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_RESET); // Enable XSHUT
-//     HAL_Delay(20);
-//     HAL_GPIO_WritePin(TOF_SHUT_GPIO_Port, TOF_SHUT_Pin, GPIO_PIN_SET); // Enable XSHUT
-//     HAL_Delay(20);
-
-//     Dev->I2cHandle = &hi2c1;
-//     Dev->I2cDevAddr = 0x52;
-//     Status = VL53L0X_DataInit(Dev);
-//     Status = VL53L0X_StaticInit(Dev);
-//     Status = VL53L0X_PerformRefCalibration(Dev, &VhvSettings, &PhaseCal);
-//     Status = VL53L0X_PerformRefSpadManagement(Dev, &refSpadCount, &isApertureSpads);
-//     Status = VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
-
-//     // Enable/Disable Sigma and Signal check
-//     Status = VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
-//     Status = VL53L0X_SetLimitCheckEnable(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
-//     Status = VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, (FixPoint1616_t)(0.1 * 65536));
-//     Status = VL53L0X_SetLimitCheckValue(Dev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, (FixPoint1616_t)(60 * 65536));
-//     Status = VL53L0X_SetMeasurementTimingBudgetMicroSeconds(Dev, 33000);
-//     Status = VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, 18);
-//     Status = VL53L0X_SetVcselPulsePeriod(Dev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, 14);
-//     Status = VL53L0X_ClearInterruptMask(Dev, 0);
-
-//     uint8_t data_ready = 0;
-
-//     while (1)
-//     {
-//         VL53L0X_StartMeasurement(Dev);
-//         for(;;)
-//         {
-//             VL53L0X_GetMeasurementDataReady(Dev, &data_ready);
-//             if(data_ready)
-//             {
-//                 Mediator_notify(m, eTOF);
-//                 break;
-//             }
-//         }
-//     }
-// }
-
-// extern StreamBufferHandle_t isr_to_pid;
-// extern VL53L0X_RangingMeasurementData_t RangingData;
-// void pid_task(void *args)
-// {
-//     PIDController_t pid;
-//     Servo_HandleTypeDef servo_dev;
-//     taskENTER_CRITICAL();
-//     SERVO_Init(&servo_dev, &htim3, 84e6, 100, 10000, TIM_CHANNEL_1);
-//     SERVO_SetPosition(&servo_dev, 90); // Set center position
-//     taskEXIT_CRITICAL();
-//     PID_Init(&pid, 13, 0, 100);
-//     float new_control, adapted_control;
-
-//     Adapter_t adp;
-//     Adapter_Init(&adp, 10000.f, -10000.f, 120.f, 60.f);
-//     QueueHandle_t *message_queue = args;
-//     measurment m;
-//     m.device = eVL53L0X;
-//     VL53L0X_RangingMeasurementData_t RangingData = {0};
-//     while (1)
-//     {
-//         VL53L0X_PerformSingleRangingMeasurement(Dev, &RangingData);
-//         new_control = PID_GetNewControl(&pid, RangingData.RangeMilliMeter, 250);
-//         adapted_control = Adapter_Map(&adp, new_control);
-//         taskENTER_CRITICAL();
-//         SERVO_SetPosition(&servo_dev, adapted_control);
-//         taskEXIT_CRITICAL();
-//         m.distance = RangingData.RangeMilliMeter;
-//         m.time_stamp = xTaskGetTickCount();
-//         xQueueSend(*message_queue, &m, portMAX_DELAY);
-//         vTaskResume(taskh);
-//     }
-// }
 
 void simple_logger(void *args)
 {

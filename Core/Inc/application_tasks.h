@@ -20,4 +20,5 @@ typedef struct {
 } measurment;
 
 void mediator_task(void* args);
+void mpu_task(void *args);
 void simple_logger(void* args);

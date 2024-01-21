@@ -129,8 +129,8 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  xTaskCreate(mediator_task, "mediator task", 1000, &message_queue, tskIDLE_PRIORITY + 20, &mediator_task_handle);
-  //xTaskCreate(mpu_task, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 10, &mpu_task_handle);
+  xTaskCreate(mediator_task, "mediator task", 1000, &message_queue, tskIDLE_PRIORITY + 10, &mediator_task_handle);
+  xTaskCreate(mpu_task, " mpu6050 task", 1000, &message_queue, tskIDLE_PRIORITY + 20, &mpu_task_handle);
   xTaskCreate(simple_logger, "Logger", 1000, &message_queue, tskIDLE_PRIORITY + 1, &taskh);
   /* USER CODE END RTOS_THREADS */
 
