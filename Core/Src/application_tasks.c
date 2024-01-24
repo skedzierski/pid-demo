@@ -81,6 +81,7 @@ void mediator_task(void* args)
         Mediator_BalanceBallAt(&m, 250);
         meas.distance = Mediator_GetRange(&m);
         xQueueSend(*message_queue, &meas, portMAX_DELAY);
+        meas.time_stamp = xTaskGetTickCount();
         vTaskResume(taskh);
     }
 }
@@ -163,7 +164,7 @@ void simple_logger(void *args)
         if (message_buf.device == eVL53L0X)
         {
             taskENTER_CRITICAL();
-            printf("VL;%ld;%ld;0\r\n", message_buf.time_stamp, message_buf.distance);
+            printf("VL;%ld;%ld\r\n", message_buf.time_stamp, message_buf.distance);
             taskEXIT_CRITICAL();
         }
         else if (message_buf.device == eMPU6050)
